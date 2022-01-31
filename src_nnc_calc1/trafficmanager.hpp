@@ -84,6 +84,10 @@ protected:
   bool                _empty_network;
   bool _use_lagging;
 
+  /* Kawano */
+  map<int,bool> _in_flight_Rold;
+  /* Kawano */
+
   // ============ sub-networks and deadlock ==========
 
   short duplicate_networks;

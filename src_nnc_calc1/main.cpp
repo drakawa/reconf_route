@@ -144,6 +144,12 @@ int sleep_threshold;
 int wakeup_latency;
 /* Matsutani EEE */
 
+/* Kawano */
+bool Rold_ejected = false;
+int T_reconf = -1;
+/* Kawano */
+
+
 /////////////////////////////////////////////////////////////////////////////
 
 bool AllocatorSim( const Configuration& config )

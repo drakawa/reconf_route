@@ -80,4 +80,10 @@ extern int wakeup_latency;
 
 
 extern bool _use_noc_latency;
+
+/* Kawano */
+extern bool Rold_ejected;
+extern int T_reconf;
+/* Kawano */
+
 #endif
