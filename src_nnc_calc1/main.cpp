@@ -306,6 +306,10 @@ int main( int argc, char **argv )
   sleep_threshold = config.GetInt("sleep_threshold");
   /* Matsutani EEE */
 
+  /* Kawano */
+  T_reconf = config.GetInt("T_reconf");
+  /* Kawano */
+
   /*configure and run the simulator
    */
   bool result = AllocatorSim( config );

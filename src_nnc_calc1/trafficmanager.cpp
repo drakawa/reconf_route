@@ -454,7 +454,20 @@ void TrafficManager::_RetireFlit( Flit *f, int dest )
     cout << "Unmatched flit! ID = " << f->id << endl;
     Error( "" );
   }
-  
+
+/* Kawano */
+  match = _in_flight_Rold.find( f->id );
+
+  if ( match != _in_flight_Rold.end( ) ) {
+    // if ( f->watch ) {
+    //   cout << "Matched flit ID = " << f->id << endl;
+    // }
+    cout << "Matched flit ID = " << f->id << "; injection time = " << f->time << " at time = " << _time << endl;
+
+    _in_flight_Rold.erase( match );
+  }
+/* Kawano */
+
   if ( f->watch ) { 
     cout << "Ejecting flit " << f->id 
 	 << ",  lat = " << _time - f->time
@@ -689,6 +702,12 @@ void TrafficManager::_GeneratePacket( int source, int stype,
     f->time   = time;
     f->record = record;
     
+    /* Kawano */
+    if ((T_reconf > 0) && (time < T_reconf) && (f->time < T_reconf)) {
+      _in_flight_Rold[f->id] = true;
+    }
+    /* Kawano */
+
     if(_trace || f->watch){
       cout<<"New Flit "<<f->src<<endl;
     }

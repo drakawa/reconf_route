@@ -253,6 +253,11 @@ BookSimConfig::BookSimConfig( )
   _int_map["wakeup_latency"] = 0;
   /* Matsutani EEE */
 
+  //==================Routing Reconfiguration============
+  /* Kawano */
+  _int_map["T_reconf"] = -1;
+  /* Kawano */
+
   //================use VC===================
   /*ozaki vc*/
   _int_map["use_vc"] = 0;

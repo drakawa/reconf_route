@@ -70,3 +70,5 @@ const_flits_per_packet = 20;
 
 sim_type       = latency;
 injection_rate = 0.01;
+
+T_reconf = 100;

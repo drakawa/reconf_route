@@ -23,3 +23,10 @@
   - trafficmanager.cpp
     - 古いパケットの監視
     - Rold_ejectedの更新
+  - booksim_config.cpp
+    - T_reconfを受け取れるようにする
+    - 参考：
+      - booksim_config.cpp:241:  _int_map["use_trace_file"] = 0;
+        globals.hpp:72:extern bool _use_trace_file;
+        main.cpp:138:bool _use_trace_file = false;
+        main.cpp:300:  _use_trace_file = (config.GetInt("use_trace_file")==1);
