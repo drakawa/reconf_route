@@ -23,6 +23,7 @@
   - trafficmanager.cpp
     - 古いパケットの監視
     - Rold_ejectedの更新
+      - _StepでRold_ejectedの更新チェック
   - booksim_config.cpp
     - T_reconfを受け取れるようにする
     - 参考：
