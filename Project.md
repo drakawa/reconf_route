@@ -11,19 +11,9 @@
     - 全ての古いパケットがejectされたらR_newに移行。
 
 - 必要な改造
-  - routefunc.{cpp,hpp}に
-    - global_routing_tableを3つ (R_old, R_int, R_new) を用意
   - global.hpp, main.cpp
     - 古いパケットのeject完了を示す変数Rold_ejectedをグローバルに用意
     - T_reconfをグローバルに用意
-  - cncnet.{cpp,hpp}
-    - global_routing_tableを3つ用意
-    - ファイル読込、テーブル生成
-    - flitのinjection timeとRold_ejectedの状態で引くテーブルを変える
-  - trafficmanager.cpp
-    - 古いパケットの監視
-    - Rold_ejectedの更新
-      - _StepでRold_ejectedの更新チェック
   - booksim_config.cpp
     - T_reconfを受け取れるようにする
     - 参考：
@@ -31,3 +21,15 @@
         globals.hpp:72:extern bool _use_trace_file;
         main.cpp:138:bool _use_trace_file = false;
         main.cpp:300:  _use_trace_file = (config.GetInt("use_trace_file")==1);
+  - trafficmanager.cpp
+    - 古いパケットの監視
+    - Rold_ejectedの更新
+      - _StepでRold_ejectedの更新チェック
+        - T_reconf以降、Rold_ejected=falseで_in_flight_Rold長さ0ならall ejected
+  -
+  - routefunc.{cpp,hpp}に
+    - global_routing_tableを3つ (R_old, R_int, R_new) を用意
+  - cncnet.{cpp,hpp}
+    - global_routing_tableを3つ用意
+    - ファイル読込、テーブル生成
+    - flitのinjection timeとRold_ejectedの状態で引くテーブルを変える

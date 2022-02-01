@@ -1048,6 +1048,13 @@ void TrafficManager::_Step( )
       }
     }
   }
+
+  /* Kawano */
+  if ((_time >= T_reconf) && !Rold_ejected && _in_flight_Rold.size() == 0) {
+    Rold_ejected = true;
+    cout << "All old packets ejected at time = " << _time << endl;
+  }
+  /* Kawano */
 }
   
 bool TrafficManager::_PacketsOutstanding( ) const
