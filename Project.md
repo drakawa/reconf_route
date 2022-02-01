@@ -11,6 +11,7 @@
     - 全ての古いパケットがejectされたらR_newに移行。
 
 - 必要な改造
+  - (パケットの監視)
   - global.hpp, main.cpp
     - 古いパケットのeject完了を示す変数Rold_ejectedをグローバルに用意
     - T_reconfをグローバルに用意
@@ -27,9 +28,24 @@
       - _StepでRold_ejectedの更新チェック
         - T_reconf以降、Rold_ejected=falseで_in_flight_Rold長さ0ならall ejected
   -
+  - テストベッド
+    - XY routing, WF, EFのテーブルを作るスクリプト (for cncnet_reconf)
+  - 
+  - (3種類のルーティング)
   - routefunc.{cpp,hpp}に
     - global_routing_tableを3つ (R_old, R_int, R_new) を用意
-  - cncnet.{cpp,hpp}
+  - cncnet_reconf.{cpp,hpp}
     - global_routing_tableを3つ用意
     - ファイル読込、テーブル生成
+  - (ルーティングの切り替え)
     - flitのinjection timeとRold_ejectedの状態で引くテーブルを変える
+
+- ToDo
+  - 実装
+    - 移動平均の可視化
+    - all ejectedからR_newへのスイッチングにインターバル持たせる
+
+- 
+- 実装方針
+  - small stepで
+  - 新しい結果をこまめに可視化する
