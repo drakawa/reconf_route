@@ -1,0 +1,12 @@
+### XY routing
+- config
+    - pn, pv, s, d, n, v, pri
+    - pn: neighboring node
+    - pv: one of all
+    - s: current node
+    - d: one of other nodes except pv
+    - n: neighbor along x or y
+    - v: one of all
+    - pri: #ofG - hops
+- construction
+    - $\forall s \in G$
