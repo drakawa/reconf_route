@@ -1,2 +1,4 @@
 src_nnc_calc1/obj/*.o
 src_nnc_calc1/booksim
+*.rt
+*.tp
