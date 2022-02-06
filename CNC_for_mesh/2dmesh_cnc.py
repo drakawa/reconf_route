@@ -49,23 +49,37 @@ class Gen2DMesh:
             else:
                 return cands[1]
             pass
+        def _data_append(rt, tup):
+            pn,pv,s,d,n,v,pri = tup
+            print(pn,pv,s,d,n,v,pri)
+            pn,pv,s,d,n,v,pri = self.tmp_G_mapping[pn], pv, self.tmp_G_mapping[s], self.tmp_G_mapping[d], self.tmp_G_mapping[n], v, pri
+            rt.append((pn,pv,s,d,n,v,pri))
 
-        for s,d in it.combinations(self.tmp_G.nodes(),2):
+        for s,d in it.permutations(self.tmp_G.nodes(),2):
             n = _nexthop(s,d)
             pri = len(self.tmp_G) - self.tmp_G_spl[n][d]
             # Todo: inject
             for pv,v in it.product(range(self.vc), range(self.vc)):
-                print(s,pv,s,d,n,v,pri)
-                rt_data.append((s,pv,s,d,n,v,pri))
+                # print(s,pv,s,d,n,v,pri)
+                _data_append(rt_data, (s,pv,s,d,n,v,pri))
+                # rt_data.append((s,pv,s,d,n,v,pri))
             for pn,pv,v in it.product(_neighbors(s), range(self.vc), range(self.vc)):
-                if pn == n or pn == d:
+                if pn == n or pn == d or _nexthop(pn,d) != s:
                     continue
-                print(pn,pv,s,d,n,v,pri)
-                rt_data.append((pn,pv,s,d,n,v,pri))
+                # print(pn,pv,s,d,n,v,pri)
+                _data_append(rt_data, (pn,pv,s,d,n,v,pri))
+                # rt_data.append((pn,pv,s,d,n,v,pri))
                 pass
 
         # print(_neighbors((0,0)))
         # print(_nexthop((0,0),(1,1)))
+
+        xy_rt_outf = os.path.join("./", "2dmesh_%d_%d_xy.rt" % (self.x, self.y))
+        with open(xy_rt_outf, 'w') as f:
+    
+            writer = csv.writer(f, delimiter=" ")
+            writer.writerows(rt_data)
+        
         pass
 
         
@@ -77,14 +91,6 @@ if __name__ == '__main__':
     parser.add_argument('vc', metavar='vc', type=int, help='vc')
     args = parser.parse_args()
     print(args)
-    # print(args.x)
 
     gen_2dMesh = Gen2DMesh(args.x, args.y, args.vc)
     gen_2dMesh.xyroute()
-
-    # num_plots = args.num_plots
-    # ij_rate, end_lat = args.ij_rate, args.end_lat
-    # src_dir, topo_dir, topo, traffic = args.src_dir, args.topo_dir, args.topo, args.traffic
-    # num_vcs = args.num_vcs
-    # log_dir = args.log_dir
-    # net_name = args.net_name
