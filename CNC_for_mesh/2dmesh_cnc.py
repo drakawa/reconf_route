@@ -36,6 +36,16 @@ class Gen2DMesh:
     def xyroute(self):
         rt_data = list()
 
+        tp_outf = os.path.join("./", "2dmesh_%d_%d_xy.tp" % (self.x, self.y))
+        with open(tp_outf, 'w') as f: 
+            writer = csv.writer(f, delimiter=" ")
+            for e_s, e_d in sorted(self.G.edges):
+                # router 2 router 11 1
+                writer.writerow(["router", e_s, "router", e_d, 1])
+            for node in sorted(self.G.nodes):
+                # node 9 router 9
+                writer.writerow(["node", node, "router", node])
+
         def _neighbors(n_coords):
             return self.tmp_G[n_coords]
         def _nexthop(n_coords, d_coords):
