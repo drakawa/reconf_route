@@ -178,10 +178,48 @@ class Gen2DMesh:
             exit(1)
         for H_edge in H.edges():
             print(H_edge)
+        print("len(H.edges()):", len(H.edges()))
 
         rt_data = list()
 
-        return H
+        num_nodes_in_G = len(tmp_G_dir)
+
+        for dst in tmp_G_dir.nodes():
+            dst_channel = (dst, DST)
+            # print("dst_channel: ", dst_channel)
+            # ances = nx.ancestors(H, dst_channel)
+            # print(len(ances), sorted(list(ances)))
+            # nxt_channels = defaultdict(set)
+            # for ance in ances:
+            #     nxt_channels[ance[0]].add(ance[1])
+            # print(nxt_channels)
+            H_spl_tgt = nx.shortest_path_length(H, target=dst_channel)
+            # print(len(H_spl_tgt), H_spl_tgt)
+            # print(H[(0,SRC)])
+            # print(H[(1,0)])
+            # print(H[(7,0)])
+            # print(H[(0,7)])
+            for in_edge_H in H.nodes():
+                for out_edge_H in H[in_edge_H]:
+                    if out_edge_H in H_spl_tgt:
+                        if out_edge_H[1] == DST:
+                            continue
+                        # elif in_edge_H[1] == SRC:
+                        #     result_table.append((out_edge_H[0], out_edge_H[0], dst, out_edge_H[1], H_spl_tgt))
+                        else:
+                            for pv, v in it.product(range(self.vc), range(self.vc)):
+                                pn, s, d, n, hops = in_edge_H[0], out_edge_H[0], dst, out_edge_H[1], H_spl_tgt[out_edge_H]
+                                
+                                if pn == n or pn == d: # or _nexthop(pn,d) != s:
+                                    continue
+
+                                self._data_append(rt_data, (pn,pv,s,d,n,v,num_nodes_in_G-hops))
+
+                        # print(in_edge_H, out_edge_H, H_spl_tgt[out_edge_H])
+                    pass
+        # print(len(result_table), result_table[:10])
+        print(rt_data, len(rt_data))
+        return rt_data
 
     def WFroute(self):
         return self.First_route("West")
@@ -199,5 +237,5 @@ if __name__ == '__main__':
 
     gen_2dMesh = Gen2DMesh(args.x, args.y, args.vc)
     gen_2dMesh.xyroute()
-    # gen_2dMesh.WFroute()
-    gen_2dMesh.EFroute()
+    gen_2dMesh.WFroute()
+    # gen_2dMesh.EFroute()
