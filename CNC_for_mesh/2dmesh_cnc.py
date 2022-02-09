@@ -209,9 +209,9 @@ class Gen2DMesh:
                         else:
                             for pv, v in it.product(range(self.vc), range(self.vc)):
                                 pn, s, d, n, hops = in_edge_H[0], out_edge_H[0], dst, out_edge_H[1], H_spl_tgt[out_edge_H]
-                                
-                                if pn == n or pn == d: # or _nexthop(pn,d) != s:
-                                    continue
+
+                                # if pn == n or pn == d: # or _nexthop(pn,d) != s:
+                                #     continue
 
                                 self._data_append(rt_data, (pn,pv,s,d,n,v,num_nodes_in_G-hops))
 
@@ -219,6 +219,13 @@ class Gen2DMesh:
                     pass
         # print(len(result_table), result_table[:10])
         print(rt_data, len(rt_data))
+
+        first_rt_outf = os.path.join("./", "2dmesh_%d_%d_%s.rt" % (self.x, self.y, dir_suffix))
+        with open(first_rt_outf, 'w') as f:
+    
+            writer = csv.writer(f, delimiter=" ")
+            writer.writerows(rt_data)
+
         return rt_data
 
     def WFroute(self):
@@ -238,4 +245,4 @@ if __name__ == '__main__':
     gen_2dMesh = Gen2DMesh(args.x, args.y, args.vc)
     gen_2dMesh.xyroute()
     gen_2dMesh.WFroute()
-    # gen_2dMesh.EFroute()
+    gen_2dMesh.EFroute()
