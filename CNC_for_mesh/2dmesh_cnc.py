@@ -4,6 +4,9 @@ import csv
 import os
 import itertools as it
 
+SRC = -2
+DST = -1
+
 class Gen2DMesh:
     def __init__(self, x, y, vc):
         self.x, self.y, self.vc = x, y, vc
@@ -33,6 +36,12 @@ class Gen2DMesh:
         # print(self.tmp_G_spl)
         # print(self.tmp_G_nxts[(2,2)][(3,3)])
 
+    def _data_append(self, rt, tup):
+        pn,pv,s,d,n,v,pri = tup
+        print(pn,pv,s,d,n,v,pri)
+        pn,pv,s,d,n,v,pri = self.tmp_G_mapping[pn], pv, self.tmp_G_mapping[s], self.tmp_G_mapping[d], self.tmp_G_mapping[n], v, pri
+        rt.append((pn,pv,s,d,n,v,pri))
+
     def xyroute(self):
         rt_data = list()
 
@@ -59,11 +68,6 @@ class Gen2DMesh:
             else:
                 return cands[1]
             pass
-        def _data_append(rt, tup):
-            pn,pv,s,d,n,v,pri = tup
-            print(pn,pv,s,d,n,v,pri)
-            pn,pv,s,d,n,v,pri = self.tmp_G_mapping[pn], pv, self.tmp_G_mapping[s], self.tmp_G_mapping[d], self.tmp_G_mapping[n], v, pri
-            rt.append((pn,pv,s,d,n,v,pri))
 
         for s,d in it.permutations(self.tmp_G.nodes(),2):
             n = _nexthop(s,d)
@@ -71,13 +75,13 @@ class Gen2DMesh:
             # Todo: inject
             for pv,v in it.product(range(self.vc), range(self.vc)):
                 # print(s,pv,s,d,n,v,pri)
-                _data_append(rt_data, (s,pv,s,d,n,v,pri))
+                self._data_append(rt_data, (s,pv,s,d,n,v,pri))
                 # rt_data.append((s,pv,s,d,n,v,pri))
             for pn,pv,v in it.product(_neighbors(s), range(self.vc), range(self.vc)):
                 if pn == n or pn == d or _nexthop(pn,d) != s:
                     continue
                 # print(pn,pv,s,d,n,v,pri)
-                _data_append(rt_data, (pn,pv,s,d,n,v,pri))
+                self._data_append(rt_data, (pn,pv,s,d,n,v,pri))
                 # rt_data.append((pn,pv,s,d,n,v,pri))
                 pass
 
@@ -92,7 +96,98 @@ class Gen2DMesh:
         
         pass
 
+    def First_route(self, first_dir):
+        # < => >,^,v (except v => ^)
+        def _is_WF(pred, node, succ):
+            is_west_first = (pred[1] == node[1] and pred[0] > node[0])
+            is_down_first = (pred[0] == node[0] and pred[1] > node[1])
+            is_west_last =  (node[1] == succ[1] and node[0] > succ[0])
+            is_up_last =    (node[0] == succ[0] and node[1] < succ[1])
+
+            # (< => <) or (< => {>,^,v})
+            if is_west_first:
+                return True
+            # ({>,^,v} => <)
+            elif is_west_last:
+                return False
+            # (v => ^)
+            elif is_down_first and is_up_last:
+                return False
+            # ({>,^,v} => {>,^,v} except v => ^)
+            else:
+                return True
+
+        # > => <,^,v (except v => ^)
+        def _is_EF(pred, node, succ):
+            is_east_first = (pred[1] == node[1] and pred[0] < node[0])
+            is_down_first = (pred[0] == node[0] and pred[1] > node[1])
+            is_east_last =  (node[1] == succ[1] and node[0] < succ[0])
+            is_up_last =    (node[0] == succ[0] and node[1] < succ[1])
+
+            # (> => >) or (> => {<,^,v})
+            if is_east_first:
+                return True
+            # ({<,^,v} => >)
+            elif is_east_last:
+                return False
+            # (v => ^)
+            elif is_down_first and is_up_last:
+                return False
+            # ({<,^,v} => {<,^,v} except v => ^)
+            else:
+                return True
+
+        if first_dir == "West":
+            _is_First = _is_WF
+            dir_suffix = "wf"
+        elif first_dir == "East":
+            _is_First = _is_EF
+            dir_suffix = "ef"
+        else:
+            print("first_dir should be either West or East.")
+            exit(1)
+
+        tp_outf = os.path.join("./", "2dmesh_%d_%d_%s.tp" % (self.x, self.y, dir_suffix))
+        with open(tp_outf, 'w') as f: 
+            writer = csv.writer(f, delimiter=" ")
+            for e_s, e_d in sorted(self.G.edges):
+                # router 2 router 11 1
+                writer.writerow(["router", e_s, "router", e_d, 1])
+            for node in sorted(self.G.nodes):
+                # node 9 router 9
+                writer.writerow(["node", node, "router", node])
+
+        H = nx.DiGraph()
+        H.add_nodes_from(self.tmp_G.edges())
+        H.add_nodes_from(map(lambda x: (x, SRC), self.tmp_G.nodes()))
+        H.add_nodes_from(map(lambda x: (x, DST), self.tmp_G.nodes()))
+
+        tmp_G_dir = self.tmp_G.to_directed()
+        for node in tmp_G_dir.nodes():
+            H.add_edge((node,SRC), (node,DST))
+            for pred in tmp_G_dir.predecessors(node):
+                H.add_edge((pred, node), (node, DST))
+            for succ in tmp_G_dir.successors(node):
+                H.add_edge((node, SRC), (node, succ))
+            for pred, succ in it.product(tmp_G_dir.predecessors(node), tmp_G_dir.successors(node)):
+                if _is_First(pred, node, succ):
+                    H.add_edge((pred, node), (node, succ))
         
+        if not nx.is_directed_acyclic_graph(H):
+            print("cyclic")
+            exit(1)
+        for H_edge in H.edges():
+            print(H_edge)
+
+        rt_data = list()
+
+        return H
+
+    def WFroute(self):
+        return self.First_route("West")
+
+    def EFroute(self):
+        return self.First_route("East")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process some integers.')
@@ -104,3 +199,5 @@ if __name__ == '__main__':
 
     gen_2dMesh = Gen2DMesh(args.x, args.y, args.vc)
     gen_2dMesh.xyroute()
+    # gen_2dMesh.WFroute()
+    gen_2dMesh.EFroute()

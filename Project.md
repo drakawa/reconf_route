@@ -41,6 +41,7 @@
     - flitのinjection timeとRold_ejectedの状態で引くテーブルを変える
 
 - ToDo
+  - UD routingを吐き出すスクリプト
   - 実装
     - 移動平均の可視化
     - all ejectedからR_newへのスイッチングにインターバル持たせる
