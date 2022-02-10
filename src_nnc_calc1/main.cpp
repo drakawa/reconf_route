@@ -69,6 +69,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "anynet.hpp"
 #include "nncnet.hpp"
 #include "cncnet.hpp"
+#include "reconfroute.hpp"
 #include "dragonfly.hpp"
 ///////////////////////////////////////////////////////////////////////////////
 //Global declarations
@@ -212,6 +213,9 @@ bool AllocatorSim( const Configuration& config )
     } else if ( topo == "cncnet"){
       CNCNet::RegisterRoutingFunctions() ;
       net[i] = new CNCNet(config);
+    } else if ( topo == "reconfroute"){
+      ReconfRoute::RegisterRoutingFunctions() ;
+      net[i] = new ReconfRoute(config);
     } else if ( topo == "dragonflynew"){
       DragonFlyNew::RegisterRoutingFunctions() ;
       net[i] = new DragonFlyNew(config);

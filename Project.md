@@ -34,9 +34,11 @@
   - (3種類のルーティング)
   - routefunc.{cpp,hpp}に
     - global_routing_tableを3つ (R_old, R_int, R_new) を用意
-  - cncnet_reconf.{cpp,hpp}
+  - network/reconf_route.{cpp,hpp}
     - global_routing_tableを3つ用意
     - ファイル読込、テーブル生成
+  - main.cpp
+    - reconf_routeを追加
   - (ルーティングの切り替え)
     - flitのinjection timeとRold_ejectedの状態で引くテーブルを変える
 
@@ -45,6 +47,7 @@
   - 実装
     - 移動平均の可視化
     - all ejectedからR_newへのスイッチングにインターバル持たせる
+    - 多段reconfiguration
   - NPBトレース評価
 
 - 

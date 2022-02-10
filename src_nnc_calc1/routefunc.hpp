@@ -53,8 +53,17 @@ extern int memo_log2gC ;
 /* kawano */
 extern map<int, map<int, int>> global_routing_table; // grt[curr][dst] = out-port
 extern map<int, map<int, int>> global_routing_table_vc; // grt[curr][dst] = vc-out
+
+// FOR NNCNET
 extern map<int, map<int, vector<tuple<int, int, int>>>> global_routing_table_nvp;
+
+// FOR CNCNET
 extern map<int, map<int, vector<tuple<int, int, int, int, int>>>> global_routing_table_ionvp; // nvp[curr][dst] = {(in-port,in-vc,out-port,out-vc,pri), ...}
+
+// FOR RECONF_ROUTE
+extern map<int, map<int, vector<tuple<int, int, int, int, int>>>> global_routing_table_ionvp_old; // nvp_old[curr][dst] = {(in-port,in-vc,out-port,out-vc,pri), ...}
+extern map<int, map<int, vector<tuple<int, int, int, int, int>>>> global_routing_table_ionvp_int; // nvp_int[curr][dst] = {(in-port,in-vc,out-port,out-vc,pri), ...}
+extern map<int, map<int, vector<tuple<int, int, int, int, int>>>> global_routing_table_ionvp_new; // nvp_new[curr][dst] = {(in-port,in-vc,out-port,out-vc,pri), ...}
 
 extern map<int, map<int, int>> next_node_port; // nnp[curr]={next:out-port, next2:out2, ...}
 extern map<int, map<int, int>> prev_node_port; // pnp[curr]={prev:in-port, prev2:in-port2, ...}
