@@ -31,12 +31,26 @@
   - テストベッド
     - XY routing, WF, EFのテーブルを作るスクリプト (for cncnet_reconf)
   - 
-  - (3種類のルーティング)
+  - (2n+1種類のルーティング)
   - routefunc.{cpp,hpp}に
-    - global_routing_tableを3つ (R_old, R_int, R_new) を用意
+    - global_routing_table_ionvpのvector global_routing_tables_ionvp_vec を用意
   - network/reconf_route.{cpp,hpp}
-    - global_routing_tableを3つ用意
+    - global_routing_tables_ionvp_vecを用意
     - ファイル読込、テーブル生成
+      - routing_table_fileに、全ルーティングテーブルのファイル名と切り替えタイミングを記述
+      ```
+        R_0.rt 100      # 開始時刻+100cycleでR_int01に切り替え
+        R_int01.rt 150  # R_0を用いるパケットがeject完了後+150cycleでR_1に切り替え
+        R_1.rt 100      # 開始時刻+100cycleでR_int12に切り替え
+        R_int12.rt 150  # R_1を用いるパケットがeject完了後+150cycleでR_2に切り替え
+        R_2.rt -1       # R_2のまま変更せず、最後まで実行 
+      ```
+      - 例
+      ```
+        2dmesh_2_2_wf.rt 100  # 開始時刻+100cycleでXY routingに切り替え
+        2dmesh_2_2_xy.rt 150  # R_0を用いるパケットがeject完了後+150cycleでEast Firstに切り替え
+        2dmesh_2_2_ef.rt -1   # 最後まで実行
+      ```
   - main.cpp
     - reconf_routeを追加
   - (ルーティングの切り替え)
