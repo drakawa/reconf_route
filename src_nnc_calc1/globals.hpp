@@ -84,6 +84,11 @@ extern bool _use_noc_latency;
 /* Kawano */
 extern bool Rold_ejected;
 extern int T_reconf;
+
+extern int reconf_times[100];
+extern int num_rtables;
+extern int current_rtable;
+extern bool is_reconfroute;
 /* Kawano */
 
 #endif

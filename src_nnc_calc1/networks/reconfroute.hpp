@@ -42,7 +42,7 @@ class ReconfRoute : public Network {
 
   string file_name;
   /* ozaki */
-  string rfile_name;
+  string txtfile_name;
   /*ozaki*/
   //associtation between  nodes and routers
   map<int, int > node_list;

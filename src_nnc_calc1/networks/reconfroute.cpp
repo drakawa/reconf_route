@@ -58,7 +58,7 @@ ReconfRoute::ReconfRoute( const Configuration &config )
 void ReconfRoute::_ComputeSize( const Configuration &config ){
     config.GetStr("network_file",file_name);
     /* ozaki */
-    config.GetStr("routing_table_file",rfile_name);
+    config.GetStr("routing_table_file",txtfile_name);
 
     _use_vc = config.GetInt("use_vc");
 
@@ -66,7 +66,7 @@ void ReconfRoute::_ComputeSize( const Configuration &config ){
 	cout<<"No network file name provided"<<endl;
 	exit(-1);
     }
-    if(rfile_name==""){
+    if(txtfile_name==""){
 	cout<<"No routing table file name provided"<<endl;
 	exit(-1);
     }
@@ -265,22 +265,24 @@ void min_reconfroute( const Router *r, const Flit *f, int in_channel,
 		// vc_pri = 0;
 	    // outputs->AddRange( out_port , vcBegin, vcEnd );
 	    } else {
-		for (size_t i = 0; i < global_routing_table_ionvp[rID][dest].size(); i++) {
-		in_port =     get<0>(global_routing_table_ionvp[rID][dest][i]);
-		in_vc =       get<1>(global_routing_table_ionvp[rID][dest][i]);
-		out_port =    get<2>(global_routing_table_ionvp[rID][dest][i]);
-		vcBegin  =    get<3>(global_routing_table_ionvp[rID][dest][i]);
-		vcEnd    =    get<3>(global_routing_table_ionvp[rID][dest][i]);
-		vc_pri   =    get<4>(global_routing_table_ionvp[rID][dest][i]);
+
+		for (size_t i = 0; i < global_routing_tables_ionvp_vec[current_rtable][rID][dest].size(); i++) {
+		in_port =     get<0>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
+		in_vc =       get<1>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
+		out_port =    get<2>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
+		vcBegin  =    get<3>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
+		vcEnd    =    get<3>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
+		vc_pri   =    get<4>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
 		if (in_channel == in_port && f->vc == in_vc) {
 		outputs->AddRange(out_port, vcBegin, vcEnd, vc_pri);
 		}
 		}
+		// cout << global_routing_tables_ionvp_vec[current_rtable][rID][dest].size() << endl;
 		// cout << "src= " << rID << " dst= " << dest << " out_port= " << out_port << " (next= " << next_port_node[rID][out_port] << ") to " << vcBegin << " w/ priority " << vc_pri << endl;
 	    }
 	    /* kawano */
 
-	    //	  cout << "src= " << rID << " dst= " << dest << " vc from " << f->vc << " to " << vcBegin << endl;
+		// cout << "src= " << rID << " dst= " << dest << " vc from " << f->vc << " to " << vcBegin << endl;
 	    if (vcBegin > gNumVCS - 1) {
 		cout << "Invalid_vc: src= " << rID << " dst= " << dest << " vc from " << f->vc << " to " << vcBegin << endl;
 	    }
@@ -293,31 +295,54 @@ void min_reconfroute( const Router *r, const Flit *f, int in_channel,
 void ReconfRoute::buildRoutingTable(){
     cout<<"==========================Router to Router =====================\n";  
 
-    ifstream ifs_r(rfile_name.c_str());
-    string str;
-    int pn, pv, s, d, n, nvc, v, p;
+	cout << "txtfile file:" << txtfile_name << endl;
+    ifstream ifs_txt(txtfile_name.c_str());
+	string str_txt;
+	string rfile_name;
+	char rfile_name_char[100];
+	int time_reconf;
 
-    cout << "routing table file" << endl;
-    if(!_use_vc){
-	while(getline(ifs_r, str)){
-	    /* kawano */
-	    sscanf(str.data(), "%d %d %d %d", &s, &d, &n, &nvc);
-	    global_routing_table[s][d] = next_node_port[s][n];
-	    global_routing_table_vc[s][d] = nvc;
+	int txtfile_countline = 0;
+
+	while (getline(ifs_txt, str_txt)) {
+		sscanf(str_txt.data(), "%s %d", rfile_name_char, &time_reconf);
+		rfile_name = rfile_name_char;
+
+		map<int, map<int, vector<tuple<int, int, int, int, int>>>> tmp_grtable_ionvp;
+
+		ifstream ifs_r(rfile_name.c_str());
+
+		string str;
+		int pn, pv, s, d, n, nvc, v, p;
+
+		cout << "routing table file:" << rfile_name << " with reconf time=" << time_reconf << endl;
+		if(!_use_vc){
+		while(getline(ifs_r, str)){
+			/* kawano */
+			sscanf(str.data(), "%d %d %d %d", &s, &d, &n, &nvc);
+			global_routing_table[s][d] = next_node_port[s][n];
+			global_routing_table_vc[s][d] = nvc;
+		}
+	
+		}
+		else if(_use_vc){
+		while(getline(ifs_r, str)){
+			/* kawano */
+			sscanf(str.data(), "%d %d %d %d %d %d %d", &pn, &pv, &s, &d, &n, &v, &p);
+			int prev_port = prev_node_port[s][pn];
+			int next_port = next_node_port[s][n];
+			tuple<int, int, int, int, int> tmp_t = make_tuple(prev_port, pv, next_port, v, p);
+			// cout << prev_port << " " << pv << " " << next_port << " " << v << " " << p << endl;
+			tmp_grtable_ionvp[s][d].push_back(tmp_t);
+		}
+		global_routing_tables_ionvp_vec.push_back(tmp_grtable_ionvp);
+		reconf_times[txtfile_countline] = time_reconf;
+		txtfile_countline++;
+		num_rtables++;
+		// cout << "ionvp_vc size: " << global_routing_tables_ionvp_vec[0].size() << endl;
+		}
+		cout << endl;
 	}
-  
-    }
-    else if(_use_vc){
-	while(getline(ifs_r, str)){
-	    /* kawano */
-	    sscanf(str.data(), "%d %d %d %d %d %d %d", &pn, &pv, &s, &d, &n, &v, &p);
-		int prev_port = prev_node_port[s][pn];
-		int next_port = next_node_port[s][n];
-		tuple<int, int, int, int, int> tmp_t = make_tuple(prev_port, pv, next_port, v, p);
-		global_routing_table_ionvp[s][d].push_back(tmp_t);
-	}
-    }
-    cout << endl;
 }
 
 int ReconfRoute::findPath(int router, int dest, int* hop_count,map<int, bool>* visited){

@@ -148,6 +148,11 @@ int wakeup_latency;
 /* Kawano */
 bool Rold_ejected = false;
 int T_reconf = -1;
+
+int reconf_times[100];
+int num_rtables = 0;
+int current_rtable = 0;
+bool is_reconfroute = false;
 /* Kawano */
 
 
@@ -216,6 +221,7 @@ bool AllocatorSim( const Configuration& config )
     } else if ( topo == "reconfroute"){
       ReconfRoute::RegisterRoutingFunctions() ;
       net[i] = new ReconfRoute(config);
+      is_reconfroute = true;
     } else if ( topo == "dragonflynew"){
       DragonFlyNew::RegisterRoutingFunctions() ;
       net[i] = new DragonFlyNew(config);
@@ -264,6 +270,11 @@ bool AllocatorSim( const Configuration& config )
 
 int main( int argc, char **argv )
 {
+  /* Kawano */
+  for (int i = 0; i < sizeof(reconf_times) / sizeof(int); i++) {
+    reconf_times[i] = -1;
+  }
+  /* Kawano */
 
   BookSimConfig config;
 
