@@ -1,1 +1,5 @@
-CNC_for_mesh/2dmesh_2_2_xy.rt -1
+CNC_for_mesh/2dmesh_2_2_wf.rt 1000
+CNC_for_mesh/2dmesh_2_2_xy.rt 500
+CNC_for_mesh/2dmesh_2_2_ef.rt 100
+CNC_for_mesh/2dmesh_2_2_xy.rt 800
+CNC_for_mesh/2dmesh_2_2_wf.rt -1

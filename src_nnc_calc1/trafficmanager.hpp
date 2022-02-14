@@ -86,6 +86,10 @@ protected:
 
   /* Kawano */
   map<int,bool> _in_flight_Rold;
+  int T_interval;
+  int t_start;
+  int t_end;
+  int R_state; // R (0) -> R_int (1) -> R_int' (2) -> R (0) ...
   /* Kawano */
 
   // ============ sub-networks and deadlock ==========

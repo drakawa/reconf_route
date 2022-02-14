@@ -6,3 +6,5 @@ src_nnc_calc1/booksim
 stat
 __pycache__
 *~
+*.cfg
+*.txt

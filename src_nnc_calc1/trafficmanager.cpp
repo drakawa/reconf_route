@@ -703,7 +703,7 @@ void TrafficManager::_GeneratePacket( int source, int stype,
     f->record = record;
     
     /* Kawano */
-    if ((T_reconf > 0) && (time < T_reconf) && (f->time < T_reconf)) {
+    if (is_reconfroute && (f->time >= t_start) && (f->time < t_end)) {
       _in_flight_Rold[f->id] = true;
     }
     /* Kawano */
@@ -760,6 +760,14 @@ void TrafficManager::_FirstStep( )
       _net[i]->WriteCredit( 0, output );
     }
   }
+  // Kawano
+  if (is_reconfroute) {
+    T_interval = reconf_times[0];
+    t_start = 0;
+    t_end = T_interval;
+    R_state = 0;
+  }
+  // Kawano
 }
 
 void TrafficManager::_BatchInject(){
@@ -991,7 +999,7 @@ void TrafficManager::_NormalInject(){
 void TrafficManager::_Step( )
 {
   if(deadlock_counter++ == 0){
-    cout << "WARNING: Possible network deadlock.\n";
+    cout << "WARNING: Possible network deadlock. at time = " << _time << endl;
   }
 
   Flit   *f;
@@ -1050,9 +1058,34 @@ void TrafficManager::_Step( )
   }
 
   /* Kawano */
-  if ((_time >= T_reconf) && !Rold_ejected && _in_flight_Rold.size() == 0) {
-    Rold_ejected = true;
-    cout << "All old packets ejected at time = " << _time << endl;
+  if (is_reconfroute) {
+    if (R_state == 0) {
+      if (T_interval > 0) {
+        T_interval--;
+      } else if (T_interval == 0) {
+        R_state = 1;
+        current_rtable++;
+        cout << "Transit to R_int at time = " << _time << endl;
+      }
+    } else if (R_state == 1) {
+      if (_in_flight_Rold.size() == 0) {
+        R_state = 2;
+        T_interval = reconf_times[current_rtable];
+        cout << "All old packets ejected at time = " << _time << endl;
+      }
+    } else {
+      if (T_interval > 0) {
+        T_interval--;
+      } else if (T_interval == 0) {
+        R_state = 0;
+        current_rtable++;
+        T_interval = reconf_times[current_rtable];
+        t_start = _time;
+        t_end = _time + T_interval;
+        cout << "Transit to R_new at time = " << _time << endl;
+      }
+    }
+
   }
   /* Kawano */
 }
