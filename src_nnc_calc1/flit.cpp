@@ -78,6 +78,9 @@ Flit::Flit()
   x_then_y = -1;
   data = 0;
   from_router = -1;
+
+  // Kawano for reconfroute
+  rtable_idx = -1;
 }  
 
 

@@ -703,6 +703,9 @@ void TrafficManager::_GeneratePacket( int source, int stype,
     f->record = record;
     
     /* Kawano */
+    if (is_reconfroute) {
+        f->rtable_idx = current_rtable;
+    }
     if (is_reconfroute && (f->time >= t_start) && (f->time < t_end)) {
       _in_flight_Rold[f->id] = true;
     }

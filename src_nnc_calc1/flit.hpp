@@ -89,6 +89,9 @@ struct Flit {
   // Fields for arbitrary data
   void* data ;
 
+  // Kawano for reconfroute
+  int rtable_idx;
+  
   // Constructor
   Flit() ;
 };

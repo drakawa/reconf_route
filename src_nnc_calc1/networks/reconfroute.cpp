@@ -266,13 +266,13 @@ void min_reconfroute( const Router *r, const Flit *f, int in_channel,
 	    // outputs->AddRange( out_port , vcBegin, vcEnd );
 	    } else {
 
-		for (size_t i = 0; i < global_routing_tables_ionvp_vec[current_rtable][rID][dest].size(); i++) {
-		in_port =     get<0>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
-		in_vc =       get<1>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
-		out_port =    get<2>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
-		vcBegin  =    get<3>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
-		vcEnd    =    get<3>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
-		vc_pri   =    get<4>(global_routing_tables_ionvp_vec[current_rtable][rID][dest][i]);
+		for (size_t i = 0; i < global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest].size(); i++) {
+		in_port =     get<0>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
+		in_vc =       get<1>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
+		out_port =    get<2>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
+		vcBegin  =    get<3>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
+		vcEnd    =    get<3>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
+		vc_pri   =    get<4>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
 		if (in_channel == in_port && f->vc == in_vc) {
 		outputs->AddRange(out_port, vcBegin, vcEnd, vc_pri);
 		}
