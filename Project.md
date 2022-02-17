@@ -69,3 +69,33 @@
 ## 実装方針
   - small stepで
   - 新しい結果をこまめに可視化する
+
+## memo
+- global.hpp: グローバル変数
+- main.cpp:
+  - configファイルから各設定値を読込
+  - networkの定義 (networks/*.{cpp,hpp})
+- booksim_config.cpp: 設定値の定義
+- trafficmanager.cpp: 実際のパケット監視・グローバル変数の更新
+- routefunc.{cpp,hpp}: networks/reconfroute.{cpp,hpp} のための変数 (テーブル)定義
+- networks/reconfroute.{cpp,hpp}: 
+  - ルーティングファイル読込
+  - ルーティングテーブル生成
+  - ルーティング関数定義
+
+まとめると…
+- trafficmanager <-> reconfroute 間でグローバル変数を介してやり取り
+- trafficmanagerで時刻・パケットのejectを管理
+- reconfrouteでテーブルを保持・更新
+
+・trafficmanager <-> reconfroute間でやり取りすべきグローバル情報
+- int reconf_times[100]: 全ての切り替え時刻 (reconfroute -> trafficmanager)
+-int num_rtables:  テーブル数 (reconfroute -> trafficmanager)
+- int current_rtable: 現在参照中のテーブル番号 (trafficmanager -> reconfroute)
+
+・準備するグローバル情報
+- bool is_reconfroute: reconfrouteであるか否か
+
+・やばい所
+- txtfile内でrtfileを相対パス指定する必要がある。めんどい
+
