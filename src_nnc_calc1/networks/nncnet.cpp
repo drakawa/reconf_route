@@ -257,14 +257,15 @@ void min_nncnet( const Router *r, const Flit *f, int in_channel,
 		// vc_pri = 0;
 	    // outputs->AddRange( out_port , vcBegin, vcEnd );
 	    } else {
-		for (size_t i = 0; i < global_routing_table_nvp[rID][dest].size(); i++) {
-		out_port = get<0>(global_routing_table_nvp[rID][dest][i]);
-		vcBegin  = get<1>(global_routing_table_nvp[rID][dest][i]);
-		vcEnd    = get<1>(global_routing_table_nvp[rID][dest][i]);
-		vc_pri   = get<2>(global_routing_table_nvp[rID][dest][i]);
-		outputs->AddRange(out_port, vcBegin, vcEnd, vc_pri);
-		// cout << "src= " << rID << " dst= " << dest << " out_port= " << out_port << " (next= " << next_port_node[rID][out_port] << ") to " << vcBegin << " w/ priority " << vc_pri << endl;
-		}
+			vector<tuple<int, int, int>> tmp_grt_nvp = global_routing_table_nvp[rID][dest];
+			for (size_t i = 0; i < tmp_grt_nvp.size(); i++) {
+				out_port = get<0>(tmp_grt_nvp[i]);
+				vcBegin  = get<1>(tmp_grt_nvp[i]);
+				vcEnd    = get<1>(tmp_grt_nvp[i]);
+				vc_pri   = get<2>(tmp_grt_nvp[i]);
+				outputs->AddRange(out_port, vcBegin, vcEnd, vc_pri);
+			// cout << "src= " << rID << " dst= " << dest << " out_port= " << out_port << " (next= " << next_port_node[rID][out_port] << ") to " << vcBegin << " w/ priority " << vc_pri << endl;
+			}
 	    }
 	    /* kawano */
 

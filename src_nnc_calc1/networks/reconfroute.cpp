@@ -265,18 +265,18 @@ void min_reconfroute( const Router *r, const Flit *f, int in_channel,
 		// vc_pri = 0;
 	    // outputs->AddRange( out_port , vcBegin, vcEnd );
 	    } else {
-
-		for (size_t i = 0; i < global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest].size(); i++) {
-		in_port =     get<0>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
-		in_vc =       get<1>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
-		out_port =    get<2>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
-		vcBegin  =    get<3>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
-		vcEnd    =    get<3>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
-		vc_pri   =    get<4>(global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest][i]);
-		if (in_channel == in_port && f->vc == in_vc) {
-		outputs->AddRange(out_port, vcBegin, vcEnd, vc_pri);
-		}
-		}
+			vector<tuple<int, int, int, int, int>> tmp_grt_ionvp_vec = global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest];
+			for (size_t i = 0; i < tmp_grt_ionvp_vec.size(); i++) {
+				in_port =     get<0>(tmp_grt_ionvp_vec[i]);
+				in_vc =       get<1>(tmp_grt_ionvp_vec[i]);
+				out_port =    get<2>(tmp_grt_ionvp_vec[i]);
+				vcBegin  =    get<3>(tmp_grt_ionvp_vec[i]);
+				vcEnd    =    get<3>(tmp_grt_ionvp_vec[i]);
+				vc_pri   =    get<4>(tmp_grt_ionvp_vec[i]);
+				if (in_channel == in_port && f->vc == in_vc) {
+					outputs->AddRange(out_port, vcBegin, vcEnd, vc_pri);
+				}
+			}
 		// cout << global_routing_tables_ionvp_vec[current_rtable][rID][dest].size() << endl;
 		// cout << "src= " << rID << " dst= " << dest << " out_port= " << out_port << " (next= " << next_port_node[rID][out_port] << ") to " << vcBegin << " w/ priority " << vc_pri << endl;
 	    }
