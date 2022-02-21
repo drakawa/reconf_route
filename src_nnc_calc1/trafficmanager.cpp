@@ -459,10 +459,10 @@ void TrafficManager::_RetireFlit( Flit *f, int dest )
   match = _in_flight_Rold.find( f->id );
 
   if ( match != _in_flight_Rold.end( ) ) {
-    // if ( f->watch ) {
-    //   cout << "Matched flit ID = " << f->id << endl;
-    // }
-    cout << "Matched flit ID = " << f->id << "; injection time = " << f->time << " at time = " << _time << endl;
+    if ( f->watch ) {
+      cout << "Matched flit ID = " << f->id << endl;
+    }
+    // cout << "Matched flit ID = " << f->id << "; injection time = " << f->time << " at time = " << _time << endl;
 
     _in_flight_Rold.erase( match );
   }
