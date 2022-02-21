@@ -1,0 +1,121 @@
+<?xml version='1.0'?>
+<!DOCTYPE platform SYSTEM "http://simgrid.gforge.inria.fr/simgrid/simgrid.dtd">
+<platform version="4">
+ 
+ <config>
+  <prop id='maxmin/precision' value='1e-4'/>
+  <prop id='network/model' value='SMPI'/>
+  <!--  Negative values enable auto-select... -->
+  <prop id='contexts/nthreads' value='1'/>
+  <!--  Power of the executing computer in Flop per seconds. Used for extrapolating tasks execution time by SMPI [default is 20000]-->
+  <prop id='smpi/running_power' value='50000000000.0'/>
+  <!--  Display simulated timing at the end of simulation -->
+  <prop id='smpi/display_timing' value='1'/>
+  <prop id='cpu/optim' value='Lazy'/>
+  <prop id='network/optim' value='Lazy'/>
+  <prop id='smpi/coll_selector' value='mvapich2'/>
+  <prop id='smpi/cpu_threshold' value='0.00000001'/>
+ </config>
+ <zone id='AS0' routing='Floyd'>
+  <host id='n1' speed='100000000000.0' core='1'/>
+  <link id='linkn1s1' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n2' speed='100000000000.0' core='2'/>
+  <link id='linkn2s1' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n3' speed='100000000000.0' core='3'/>
+  <link id='linkn3s1' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n4' speed='100000000000.0' core='4'/>
+  <link id='linkn4s1' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n5' speed='100000000000.0' core='5'/>
+  <link id='linkn5s2' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n6' speed='100000000000.0' core='6'/>
+  <link id='linkn6s2' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n7' speed='100000000000.0' core='7'/>
+  <link id='linkn7s2' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n8' speed='100000000000.0' core='8'/>
+  <link id='linkn8s2' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n9' speed='100000000000.0' core='9'/>
+  <link id='linkn9s3' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n10' speed='100000000000.0' core='10'/>
+  <link id='linkn10s3' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n11' speed='100000000000.0' core='11'/>
+  <link id='linkn11s3' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n12' speed='100000000000.0' core='12'/>
+  <link id='linkn12s3' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n13' speed='100000000000.0' core='13'/>
+  <link id='linkn13s4' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n14' speed='100000000000.0' core='14'/>
+  <link id='linkn14s4' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n15' speed='100000000000.0' core='15'/>
+  <link id='linkn15s4' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n16' speed='100000000000.0' core='16'/>
+  <link id='linkn16s4' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <router id='s1'/>
+  <router id='s2'/>
+  <router id='s3'/>
+  <router id='s4'/>
+  <link id='links1s2' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links1s3' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links2s4' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links3s4' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <route src='n1' dst='s1'>
+   <link_ctn id='linkn1s1'/>
+  </route>
+  <route src='n2' dst='s1'>
+   <link_ctn id='linkn2s1'/>
+  </route>
+  <route src='n3' dst='s1'>
+   <link_ctn id='linkn3s1'/>
+  </route>
+  <route src='n4' dst='s1'>
+   <link_ctn id='linkn4s1'/>
+  </route>
+  <route src='n5' dst='s2'>
+   <link_ctn id='linkn5s2'/>
+  </route>
+  <route src='n6' dst='s2'>
+   <link_ctn id='linkn6s2'/>
+  </route>
+  <route src='n7' dst='s2'>
+   <link_ctn id='linkn7s2'/>
+  </route>
+  <route src='n8' dst='s2'>
+   <link_ctn id='linkn8s2'/>
+  </route>
+  <route src='n9' dst='s3'>
+   <link_ctn id='linkn9s3'/>
+  </route>
+  <route src='n10' dst='s3'>
+   <link_ctn id='linkn10s3'/>
+  </route>
+  <route src='n11' dst='s3'>
+   <link_ctn id='linkn11s3'/>
+  </route>
+  <route src='n12' dst='s3'>
+   <link_ctn id='linkn12s3'/>
+  </route>
+  <route src='n13' dst='s4'>
+   <link_ctn id='linkn13s4'/>
+  </route>
+  <route src='n14' dst='s4'>
+   <link_ctn id='linkn14s4'/>
+  </route>
+  <route src='n15' dst='s4'>
+   <link_ctn id='linkn15s4'/>
+  </route>
+  <route src='n16' dst='s4'>
+   <link_ctn id='linkn16s4'/>
+  </route>
+  <route src='s1' dst='s2'>
+   <link_ctn id='links1s2'/>
+  </route>
+  <route src='s1' dst='s3'>
+   <link_ctn id='links1s3'/>
+  </route>
+  <route src='s2' dst='s4'>
+   <link_ctn id='links2s4'/>
+  </route>
+  <route src='s3' dst='s4'>
+   <link_ctn id='links3s4'/>
+  </route>
+ </zone>
+</platform>

@@ -1,0 +1,3 @@
+bin/lu.B.1024 --cfg=smpi/privatization:1 --cfg=surf/precision:1e-9 --cfg=network/model:SMPI --cfg=smpi/privatize_global_variables:yes ./simgrid_topo/torusrows_4_4_4_4.edges_4_1024.xml smpitmp-appm0E7dq
+Generated unrolled hostfile smpitmp-hostfJjCxlu kept.
+Execution failed with code 143.

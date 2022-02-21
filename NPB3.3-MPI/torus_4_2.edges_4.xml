@@ -1,0 +1,485 @@
+<?xml version='1.0'?>
+<!DOCTYPE platform SYSTEM "http://simgrid.gforge.inria.fr/simgrid/simgrid.dtd">
+<platform version="4">
+ 
+ <config>
+  <prop id='maxmin/precision' value='1e-4'/>
+  <prop id='network/model' value='SMPI'/>
+  <!--  Negative values enable auto-select... -->
+  <prop id='contexts/nthreads' value='1'/>
+  <!--  Power of the executing computer in Flop per seconds. Used for extrapolating tasks execution time by SMPI [default is 20000]-->
+  <prop id='smpi/running_power' value='50000000000.0'/>
+  <!--  Display simulated timing at the end of simulation -->
+  <prop id='smpi/display_timing' value='1'/>
+  <prop id='cpu/optim' value='Lazy'/>
+  <prop id='network/optim' value='Lazy'/>
+  <prop id='smpi/coll_selector' value='mvapich2'/>
+  <prop id='smpi/cpu_threshold' value='0.00000001'/>
+ </config>
+ <zone id='AS0' routing='Floyd'>
+  <host id='n1' speed='100000000000.0' core='1'/>
+  <link id='linkn1s1' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n2' speed='100000000000.0' core='2'/>
+  <link id='linkn2s1' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n3' speed='100000000000.0' core='3'/>
+  <link id='linkn3s1' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n4' speed='100000000000.0' core='4'/>
+  <link id='linkn4s1' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n5' speed='100000000000.0' core='5'/>
+  <link id='linkn5s2' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n6' speed='100000000000.0' core='6'/>
+  <link id='linkn6s2' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n7' speed='100000000000.0' core='7'/>
+  <link id='linkn7s2' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n8' speed='100000000000.0' core='8'/>
+  <link id='linkn8s2' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n9' speed='100000000000.0' core='9'/>
+  <link id='linkn9s3' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n10' speed='100000000000.0' core='10'/>
+  <link id='linkn10s3' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n11' speed='100000000000.0' core='11'/>
+  <link id='linkn11s3' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n12' speed='100000000000.0' core='12'/>
+  <link id='linkn12s3' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n13' speed='100000000000.0' core='13'/>
+  <link id='linkn13s4' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n14' speed='100000000000.0' core='14'/>
+  <link id='linkn14s4' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n15' speed='100000000000.0' core='15'/>
+  <link id='linkn15s4' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n16' speed='100000000000.0' core='16'/>
+  <link id='linkn16s4' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n17' speed='100000000000.0' core='17'/>
+  <link id='linkn17s5' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n18' speed='100000000000.0' core='18'/>
+  <link id='linkn18s5' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n19' speed='100000000000.0' core='19'/>
+  <link id='linkn19s5' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n20' speed='100000000000.0' core='20'/>
+  <link id='linkn20s5' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n21' speed='100000000000.0' core='21'/>
+  <link id='linkn21s6' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n22' speed='100000000000.0' core='22'/>
+  <link id='linkn22s6' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n23' speed='100000000000.0' core='23'/>
+  <link id='linkn23s6' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n24' speed='100000000000.0' core='24'/>
+  <link id='linkn24s6' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n25' speed='100000000000.0' core='25'/>
+  <link id='linkn25s7' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n26' speed='100000000000.0' core='26'/>
+  <link id='linkn26s7' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n27' speed='100000000000.0' core='27'/>
+  <link id='linkn27s7' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n28' speed='100000000000.0' core='28'/>
+  <link id='linkn28s7' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n29' speed='100000000000.0' core='29'/>
+  <link id='linkn29s8' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n30' speed='100000000000.0' core='30'/>
+  <link id='linkn30s8' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n31' speed='100000000000.0' core='31'/>
+  <link id='linkn31s8' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n32' speed='100000000000.0' core='32'/>
+  <link id='linkn32s8' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n33' speed='100000000000.0' core='33'/>
+  <link id='linkn33s9' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n34' speed='100000000000.0' core='34'/>
+  <link id='linkn34s9' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n35' speed='100000000000.0' core='35'/>
+  <link id='linkn35s9' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n36' speed='100000000000.0' core='36'/>
+  <link id='linkn36s9' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n37' speed='100000000000.0' core='37'/>
+  <link id='linkn37s10' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n38' speed='100000000000.0' core='38'/>
+  <link id='linkn38s10' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n39' speed='100000000000.0' core='39'/>
+  <link id='linkn39s10' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n40' speed='100000000000.0' core='40'/>
+  <link id='linkn40s10' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n41' speed='100000000000.0' core='41'/>
+  <link id='linkn41s11' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n42' speed='100000000000.0' core='42'/>
+  <link id='linkn42s11' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n43' speed='100000000000.0' core='43'/>
+  <link id='linkn43s11' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n44' speed='100000000000.0' core='44'/>
+  <link id='linkn44s11' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n45' speed='100000000000.0' core='45'/>
+  <link id='linkn45s12' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n46' speed='100000000000.0' core='46'/>
+  <link id='linkn46s12' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n47' speed='100000000000.0' core='47'/>
+  <link id='linkn47s12' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n48' speed='100000000000.0' core='48'/>
+  <link id='linkn48s12' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n49' speed='100000000000.0' core='49'/>
+  <link id='linkn49s13' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n50' speed='100000000000.0' core='50'/>
+  <link id='linkn50s13' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n51' speed='100000000000.0' core='51'/>
+  <link id='linkn51s13' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n52' speed='100000000000.0' core='52'/>
+  <link id='linkn52s13' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n53' speed='100000000000.0' core='53'/>
+  <link id='linkn53s14' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n54' speed='100000000000.0' core='54'/>
+  <link id='linkn54s14' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n55' speed='100000000000.0' core='55'/>
+  <link id='linkn55s14' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n56' speed='100000000000.0' core='56'/>
+  <link id='linkn56s14' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n57' speed='100000000000.0' core='57'/>
+  <link id='linkn57s15' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n58' speed='100000000000.0' core='58'/>
+  <link id='linkn58s15' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n59' speed='100000000000.0' core='59'/>
+  <link id='linkn59s15' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n60' speed='100000000000.0' core='60'/>
+  <link id='linkn60s15' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n61' speed='100000000000.0' core='61'/>
+  <link id='linkn61s16' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n62' speed='100000000000.0' core='62'/>
+  <link id='linkn62s16' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n63' speed='100000000000.0' core='63'/>
+  <link id='linkn63s16' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <host id='n64' speed='100000000000.0' core='64'/>
+  <link id='linkn64s16' bandwidth='10000000000.0' latency='8.799999999999999e-07'/>
+  <router id='s1'/>
+  <router id='s2'/>
+  <router id='s3'/>
+  <router id='s4'/>
+  <router id='s5'/>
+  <router id='s6'/>
+  <router id='s7'/>
+  <router id='s8'/>
+  <router id='s9'/>
+  <router id='s10'/>
+  <router id='s11'/>
+  <router id='s12'/>
+  <router id='s13'/>
+  <router id='s14'/>
+  <router id='s15'/>
+  <router id='s16'/>
+  <link id='links1s2' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links1s3' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links1s4' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links1s5' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links2s13' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links2s6' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links2s11' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links3s6' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links3s7' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links3s8' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links4s7' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links4s11' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links4s12' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links5s13' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links5s8' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links5s12' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links6s14' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links6s9' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links7s9' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links7s10' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links8s14' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links8s10' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links9s15' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links9s11' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links10s15' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links10s12' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links11s16' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links12s16' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links13s14' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links13s16' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links14s15' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <link id='links15s16' bandwidth='10000000000.0' latency='2.0852e-06'/>
+  <route src='n1' dst='s1'>
+   <link_ctn id='linkn1s1'/>
+  </route>
+  <route src='n2' dst='s1'>
+   <link_ctn id='linkn2s1'/>
+  </route>
+  <route src='n3' dst='s1'>
+   <link_ctn id='linkn3s1'/>
+  </route>
+  <route src='n4' dst='s1'>
+   <link_ctn id='linkn4s1'/>
+  </route>
+  <route src='n5' dst='s2'>
+   <link_ctn id='linkn5s2'/>
+  </route>
+  <route src='n6' dst='s2'>
+   <link_ctn id='linkn6s2'/>
+  </route>
+  <route src='n7' dst='s2'>
+   <link_ctn id='linkn7s2'/>
+  </route>
+  <route src='n8' dst='s2'>
+   <link_ctn id='linkn8s2'/>
+  </route>
+  <route src='n9' dst='s3'>
+   <link_ctn id='linkn9s3'/>
+  </route>
+  <route src='n10' dst='s3'>
+   <link_ctn id='linkn10s3'/>
+  </route>
+  <route src='n11' dst='s3'>
+   <link_ctn id='linkn11s3'/>
+  </route>
+  <route src='n12' dst='s3'>
+   <link_ctn id='linkn12s3'/>
+  </route>
+  <route src='n13' dst='s4'>
+   <link_ctn id='linkn13s4'/>
+  </route>
+  <route src='n14' dst='s4'>
+   <link_ctn id='linkn14s4'/>
+  </route>
+  <route src='n15' dst='s4'>
+   <link_ctn id='linkn15s4'/>
+  </route>
+  <route src='n16' dst='s4'>
+   <link_ctn id='linkn16s4'/>
+  </route>
+  <route src='n17' dst='s5'>
+   <link_ctn id='linkn17s5'/>
+  </route>
+  <route src='n18' dst='s5'>
+   <link_ctn id='linkn18s5'/>
+  </route>
+  <route src='n19' dst='s5'>
+   <link_ctn id='linkn19s5'/>
+  </route>
+  <route src='n20' dst='s5'>
+   <link_ctn id='linkn20s5'/>
+  </route>
+  <route src='n21' dst='s6'>
+   <link_ctn id='linkn21s6'/>
+  </route>
+  <route src='n22' dst='s6'>
+   <link_ctn id='linkn22s6'/>
+  </route>
+  <route src='n23' dst='s6'>
+   <link_ctn id='linkn23s6'/>
+  </route>
+  <route src='n24' dst='s6'>
+   <link_ctn id='linkn24s6'/>
+  </route>
+  <route src='n25' dst='s7'>
+   <link_ctn id='linkn25s7'/>
+  </route>
+  <route src='n26' dst='s7'>
+   <link_ctn id='linkn26s7'/>
+  </route>
+  <route src='n27' dst='s7'>
+   <link_ctn id='linkn27s7'/>
+  </route>
+  <route src='n28' dst='s7'>
+   <link_ctn id='linkn28s7'/>
+  </route>
+  <route src='n29' dst='s8'>
+   <link_ctn id='linkn29s8'/>
+  </route>
+  <route src='n30' dst='s8'>
+   <link_ctn id='linkn30s8'/>
+  </route>
+  <route src='n31' dst='s8'>
+   <link_ctn id='linkn31s8'/>
+  </route>
+  <route src='n32' dst='s8'>
+   <link_ctn id='linkn32s8'/>
+  </route>
+  <route src='n33' dst='s9'>
+   <link_ctn id='linkn33s9'/>
+  </route>
+  <route src='n34' dst='s9'>
+   <link_ctn id='linkn34s9'/>
+  </route>
+  <route src='n35' dst='s9'>
+   <link_ctn id='linkn35s9'/>
+  </route>
+  <route src='n36' dst='s9'>
+   <link_ctn id='linkn36s9'/>
+  </route>
+  <route src='n37' dst='s10'>
+   <link_ctn id='linkn37s10'/>
+  </route>
+  <route src='n38' dst='s10'>
+   <link_ctn id='linkn38s10'/>
+  </route>
+  <route src='n39' dst='s10'>
+   <link_ctn id='linkn39s10'/>
+  </route>
+  <route src='n40' dst='s10'>
+   <link_ctn id='linkn40s10'/>
+  </route>
+  <route src='n41' dst='s11'>
+   <link_ctn id='linkn41s11'/>
+  </route>
+  <route src='n42' dst='s11'>
+   <link_ctn id='linkn42s11'/>
+  </route>
+  <route src='n43' dst='s11'>
+   <link_ctn id='linkn43s11'/>
+  </route>
+  <route src='n44' dst='s11'>
+   <link_ctn id='linkn44s11'/>
+  </route>
+  <route src='n45' dst='s12'>
+   <link_ctn id='linkn45s12'/>
+  </route>
+  <route src='n46' dst='s12'>
+   <link_ctn id='linkn46s12'/>
+  </route>
+  <route src='n47' dst='s12'>
+   <link_ctn id='linkn47s12'/>
+  </route>
+  <route src='n48' dst='s12'>
+   <link_ctn id='linkn48s12'/>
+  </route>
+  <route src='n49' dst='s13'>
+   <link_ctn id='linkn49s13'/>
+  </route>
+  <route src='n50' dst='s13'>
+   <link_ctn id='linkn50s13'/>
+  </route>
+  <route src='n51' dst='s13'>
+   <link_ctn id='linkn51s13'/>
+  </route>
+  <route src='n52' dst='s13'>
+   <link_ctn id='linkn52s13'/>
+  </route>
+  <route src='n53' dst='s14'>
+   <link_ctn id='linkn53s14'/>
+  </route>
+  <route src='n54' dst='s14'>
+   <link_ctn id='linkn54s14'/>
+  </route>
+  <route src='n55' dst='s14'>
+   <link_ctn id='linkn55s14'/>
+  </route>
+  <route src='n56' dst='s14'>
+   <link_ctn id='linkn56s14'/>
+  </route>
+  <route src='n57' dst='s15'>
+   <link_ctn id='linkn57s15'/>
+  </route>
+  <route src='n58' dst='s15'>
+   <link_ctn id='linkn58s15'/>
+  </route>
+  <route src='n59' dst='s15'>
+   <link_ctn id='linkn59s15'/>
+  </route>
+  <route src='n60' dst='s15'>
+   <link_ctn id='linkn60s15'/>
+  </route>
+  <route src='n61' dst='s16'>
+   <link_ctn id='linkn61s16'/>
+  </route>
+  <route src='n62' dst='s16'>
+   <link_ctn id='linkn62s16'/>
+  </route>
+  <route src='n63' dst='s16'>
+   <link_ctn id='linkn63s16'/>
+  </route>
+  <route src='n64' dst='s16'>
+   <link_ctn id='linkn64s16'/>
+  </route>
+  <route src='s1' dst='s2'>
+   <link_ctn id='links1s2'/>
+  </route>
+  <route src='s1' dst='s3'>
+   <link_ctn id='links1s3'/>
+  </route>
+  <route src='s1' dst='s4'>
+   <link_ctn id='links1s4'/>
+  </route>
+  <route src='s1' dst='s5'>
+   <link_ctn id='links1s5'/>
+  </route>
+  <route src='s2' dst='s13'>
+   <link_ctn id='links2s13'/>
+  </route>
+  <route src='s2' dst='s6'>
+   <link_ctn id='links2s6'/>
+  </route>
+  <route src='s2' dst='s11'>
+   <link_ctn id='links2s11'/>
+  </route>
+  <route src='s3' dst='s6'>
+   <link_ctn id='links3s6'/>
+  </route>
+  <route src='s3' dst='s7'>
+   <link_ctn id='links3s7'/>
+  </route>
+  <route src='s3' dst='s8'>
+   <link_ctn id='links3s8'/>
+  </route>
+  <route src='s4' dst='s7'>
+   <link_ctn id='links4s7'/>
+  </route>
+  <route src='s4' dst='s11'>
+   <link_ctn id='links4s11'/>
+  </route>
+  <route src='s4' dst='s12'>
+   <link_ctn id='links4s12'/>
+  </route>
+  <route src='s5' dst='s13'>
+   <link_ctn id='links5s13'/>
+  </route>
+  <route src='s5' dst='s8'>
+   <link_ctn id='links5s8'/>
+  </route>
+  <route src='s5' dst='s12'>
+   <link_ctn id='links5s12'/>
+  </route>
+  <route src='s6' dst='s14'>
+   <link_ctn id='links6s14'/>
+  </route>
+  <route src='s6' dst='s9'>
+   <link_ctn id='links6s9'/>
+  </route>
+  <route src='s7' dst='s9'>
+   <link_ctn id='links7s9'/>
+  </route>
+  <route src='s7' dst='s10'>
+   <link_ctn id='links7s10'/>
+  </route>
+  <route src='s8' dst='s14'>
+   <link_ctn id='links8s14'/>
+  </route>
+  <route src='s8' dst='s10'>
+   <link_ctn id='links8s10'/>
+  </route>
+  <route src='s9' dst='s15'>
+   <link_ctn id='links9s15'/>
+  </route>
+  <route src='s9' dst='s11'>
+   <link_ctn id='links9s11'/>
+  </route>
+  <route src='s10' dst='s15'>
+   <link_ctn id='links10s15'/>
+  </route>
+  <route src='s10' dst='s12'>
+   <link_ctn id='links10s12'/>
+  </route>
+  <route src='s11' dst='s16'>
+   <link_ctn id='links11s16'/>
+  </route>
+  <route src='s12' dst='s16'>
+   <link_ctn id='links12s16'/>
+  </route>
+  <route src='s13' dst='s14'>
+   <link_ctn id='links13s14'/>
+  </route>
+  <route src='s13' dst='s16'>
+   <link_ctn id='links13s16'/>
+  </route>
+  <route src='s14' dst='s15'>
+   <link_ctn id='links14s15'/>
+  </route>
+  <route src='s15' dst='s16'>
+   <link_ctn id='links15s16'/>
+  </route>
+ </zone>
+</platform>
