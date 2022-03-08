@@ -104,7 +104,7 @@ p, c: num_packets, cycles
     print("outf_name:", outf_name)
 
     with open(outf_name, 'w') as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, delimiter=" ")
         writer.writerow([num_packets])
         for clk, src, dst, packet_size in purify_csv.purify_csv():
             if src != dst and packet_size > 0:
