@@ -66,8 +66,8 @@ class PurifyCSV:
 if __name__ == "__main__":
     """
 input
--t trace: suffix (_*.csv) 前のファイル名
-例: crossbar_256_is.A.256_trace
+-t trace: suffix (before _*.csv)
+e.g.: crossbar_256_is.A.256_trace
 -s sample_period: 
 -f flit_size
 
