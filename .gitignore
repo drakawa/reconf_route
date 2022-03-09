@@ -10,3 +10,4 @@ __pycache__
 *.txt
 trace_csv/*.csv
 trace_csv/*.tr
+trace_csv/*.tr.orig
