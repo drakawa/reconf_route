@@ -153,7 +153,9 @@ p, c: num_packets, cycles
     #     if debugcount > 100:
     #         exit(1)
 
-    outf_name = "{:s}_{:.2e}_{:d}_{:d}_{:d}.tr".format(trace, sample_rate, flit_size, num_packets, num_cycles)
+
+    sample_rate_str = "{:.2e}".format(sample_rate).replace("+", "")
+    outf_name = "{:s}_{:s}_{:d}_{:d}_{:d}.tr".format(trace, sample_rate_str, flit_size, num_packets, num_cycles)
     print("outf_name:", outf_name)
 
     with open(outf_name, 'w') as f:

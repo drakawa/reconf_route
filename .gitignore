@@ -11,3 +11,5 @@ __pycache__
 trace_csv/*.csv
 trace_csv/*.tr
 trace_csv/*.tr.orig
+booksim_py3_nnc2/*.tr
+booksim_py3_nnc2/*.log

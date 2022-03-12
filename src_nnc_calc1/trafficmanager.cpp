@@ -669,7 +669,7 @@ void TrafficManager::_GeneratePacket( int source, int stype,
       packet_type = Flit::ANY_TYPE;
       size =  trace_events[trace_event_ptr].size;
       packet_destination = trace_events[trace_event_ptr].dst;
-      //printf("Trace: Packet is injected (time %d src %d dst %d size %d)\n", time, source, packet_destination, size);
+      printf("Trace: Packet is injected (time %d src %d dst %d size %d)\n", time, source, packet_destination, size);
     } else {
       // use uniform packet size
       packet_type = Flit::ANY_TYPE;
