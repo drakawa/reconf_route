@@ -45,7 +45,7 @@ if __name__ == "__main__":
         # print(list(bfs_edges))
 
         # Hs = [GenUDCDG(G,i).gen_cdg() for i in sorted(G.nodes)]
-        Hs = [gen_ud(n, d, s, "hops", ".", G, G_dir, bfs_root=i) for i in sorted(G.nodes)]
+        Hs = [gen_ud(n, d, s, "hops", "./edgefiles", G, G_dir, bfs_root=i) for i in sorted(G.nodes)]
 
         H_sorted_nodes = sorted(Hs[0].nodes, key=lambda x: (x[1],x[0]))
         Hs = [nx.to_scipy_sparse_matrix(H, nodelist=H_sorted_nodes) for H in Hs]
