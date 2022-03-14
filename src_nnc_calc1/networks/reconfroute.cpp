@@ -265,7 +265,16 @@ void min_reconfroute( const Router *r, const Flit *f, int in_channel,
 		// vc_pri = 0;
 	    // outputs->AddRange( out_port , vcBegin, vcEnd );
 	    } else {
-			vector<tuple<int, int, int, int, int>> tmp_grt_ionvp_vec = global_routing_tables_ionvp_vec[f->rtable_idx][rID][dest];
+
+			// Kawano
+			int f_rtable_idx = f->rtable_idx;
+
+			// // ******* Comment out 3 lines below if you want to use R_new immediately by KAWANO *******
+			// if (f_rtable_idx % 2 != 0 && current_rtable == f_rtable_idx+1) {
+			// 	f_rtable_idx = current_rtable;
+			// }
+
+			vector<tuple<int, int, int, int, int>> tmp_grt_ionvp_vec = global_routing_tables_ionvp_vec[f_rtable_idx][rID][dest];
 			for (size_t i = 0; i < tmp_grt_ionvp_vec.size(); i++) {
 				in_port =     get<0>(tmp_grt_ionvp_vec[i]);
 				in_vc =       get<1>(tmp_grt_ionvp_vec[i]);
@@ -277,6 +286,8 @@ void min_reconfroute( const Router *r, const Flit *f, int in_channel,
 					outputs->AddRange(out_port, vcBegin, vcEnd, vc_pri);
 				}
 			}
+			// Kawano
+
 		// cout << global_routing_tables_ionvp_vec[current_rtable][rID][dest].size() << endl;
 		// cout << "src= " << rID << " dst= " << dest << " out_port= " << out_port << " (next= " << next_port_node[rID][out_port] << ") to " << vcBegin << " w/ priority " << vc_pri << endl;
 	    }
