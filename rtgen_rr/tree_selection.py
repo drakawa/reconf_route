@@ -1,4 +1,6 @@
 import math
+import numpy as np
+import itertools as it
 
 def dst_transpose(src: int, num_nodes: int) -> int:
     """destination for transpose traffic.
@@ -84,6 +86,30 @@ def dst_shuffle(src: int, num_nodes: int) -> int:
     src_bit = "{:0{width}b}".format(src, width=lg)
     return int(src_bit[1:] + src_bit[:1], 2)
 
+def gen_TM_from_tf(tf, num_nodes):
+    """generate Traffic Matrix from traffic function
+
+    Args:
+        tf (Callable): traffic function (src: int, num_nodes: int -> int)
+        num_nodes (int): # of nodes (must be 2^i)
+
+    Returns:
+        (ndarray): num_nodes x num_nodes traffic matrix 
+    """
+    
+    tm = np.zeros((num_nodes, num_nodes))
+    for src in range(num_nodes):
+        dst = tf(src, num_nodes)
+        if src != dst:
+            tm[src, dst] = 1
+
+    return tm
+
+
 if __name__ == "__main__":
+
     import doctest
     doctest.testmod()
+
+    print(gen_TM_from_tf(dst_shuffle, 64))
+    print(np.nonzero(gen_TM_from_tf(dst_shuffle, 64)))
