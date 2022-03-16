@@ -14,3 +14,4 @@ trace_csv/*.tr.orig
 booksim_py3_nnc2/*.tr
 booksim_py3_nnc2/*.log
 rtgen_rr/edgefiles/*.edges
+rtgen_rr/*.bin

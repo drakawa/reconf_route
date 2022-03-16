@@ -7,6 +7,7 @@ import csv
 from validate_ecdg2_woacy_copy import gen_ud
 from scipy.sparse.csgraph import shortest_path
 from multiprocessing import Pool
+import pickle
 
 NUM_POOLS = 16
 SD_OFFSET = 1
@@ -114,6 +115,9 @@ def gen_TM_from_tf(tf, num_nodes):
 
     return tm
 
+def gen_TM_uniform(num_nodes):
+    return (np.ones((num_nodes, num_nodes)) - np.eye(num_nodes)) / (num_nodes - 1)
+
 def calc_coH_edge(inputs):
     n, H_i, H_j = inputs
     H_int = H_i.multiply(H_j)
@@ -183,14 +187,35 @@ class CompGraph:
         self.Hs_sp = Hs_sp
         print(Hs_sp[0], Hs_sp[0].size)
 
+def get_tree_tmopt(comp_graph: CompGraph, tm: np.ndarray, term: int):
+    for H_sp in comp_graph.Hs_sp:
+        weight_sp = np.sum(H_sp * tm) * term
+        print(weight_sp)
+
+def get_comp_graph(n, d, s):
+    cg_bin = "comp_graph_{}_{}_{}.bin".format(n, d, s)
+    if os.path.exists(cg_bin):
+        with open(cg_bin, "rb") as f:
+            compGraph = pickle.load(f)
+    else:
+        compGraph = CompGraph(n, d, s)
+        compGraph.comp_graph()
+
+        with open(cg_bin, "wb") as f:
+            pickle.dump(compGraph, f)
+
+    return compGraph
 
 if __name__ == "__main__":
 
     import doctest
     doctest.testmod()
 
-    print(gen_TM_from_tf(dst_shuffle, 64))
-    print(np.nonzero(gen_TM_from_tf(dst_shuffle, 64)))
+    n, d, s = 64, 8, 1
+    print(gen_TM_from_tf(dst_shuffle, n))
+    print(np.nonzero(gen_TM_from_tf(dst_shuffle, n)))
+    print(gen_TM_uniform(n))
 
-    compGraph = CompGraph(64, 8, 1)
-    compGraph.comp_graph()
+    compGraph = get_comp_graph(n, d, s)
+    get_tree_tmopt(compGraph, gen_TM_uniform(n), 1000)
+    get_tree_tmopt(compGraph, gen_TM_from_tf(dst_shuffle, n), 1000)
