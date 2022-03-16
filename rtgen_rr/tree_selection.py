@@ -9,6 +9,7 @@ from scipy.sparse.csgraph import shortest_path
 from multiprocessing import Pool
 
 NUM_POOLS = 16
+SD_OFFSET = 1
 
 def dst_transpose(src: int, num_nodes: int) -> int:
     """destination for transpose traffic.
@@ -121,11 +122,13 @@ def calc_coH_edge(inputs):
     num_posinf = sum(np.isposinf(H_int_scsp_sd))
     return sum(num_posinf) == 0
 
-def Hs_iter(Hs, G):
-    n = len(G)
+def Hs_iter(n, Hs, G):
     for i, j in it.combinations(sorted(G.nodes), 2):
         yield n, Hs[i], Hs[j]
 
+def calc_Hs_sp(inputs):
+    H, n = inputs
+    return shortest_path(H)[0:n,n:2*n] - 1
 
 class CompGraph:
     """compatibility graph
@@ -134,18 +137,22 @@ class CompGraph:
         n (int): # of nodes
         d (int): degree
         s (int): random seed
+        G (nx.Graph): random regular graph
         Hs (list of nx.DiGraph): channel dependency graphs
         coH (nx.Graph): compatibility graph among CDGs
+        Hs_sp (list of spmat): shortest path length for CDGs
     """
-    
+
     def __init__(self, n, d, s):
         self.n, self.d, self.s = n, d, s
+        self.G = nx.random_regular_graph(d, n, s)
         self.Hs = None
         self.coH = None
+        self.Hs_sp = None
     
     def comp_graph(self):
         n, d, s = self.n, self.d, self.s
-        G = nx.random_regular_graph(d, n, s)
+        G = self.G
         G_dir = G.to_directed()
 
         Hs = [gen_ud(n, d, s, "hops", "./edgefiles", G, G_dir, bfs_root=i) for i in sorted(G.nodes)]
@@ -159,17 +166,24 @@ class CompGraph:
         coH.add_nodes_from(sorted(G.nodes))
 
         p = Pool(NUM_POOLS)
-        result = p.map(calc_coH_edge, Hs_iter(Hs, G))
+        result = p.map(calc_coH_edge, Hs_iter(n, Hs, G))
         coH_edges_p = [(i,j) for idx, (i, j) in enumerate(it.combinations(sorted(G.nodes), 2)) if result[idx]]
 
         coH.add_edges_from(coH_edges_p)
         self.coH = coH
 
         largest_cc = max(nx.connected_components(coH), key=len)
+
         print(largest_cc)
         print(self.Hs[0])
 
-    
+        p = Pool(NUM_POOLS)
+        Hs_sp = p.map(calc_Hs_sp, [(H, n) for H in Hs])
+
+        self.Hs_sp = Hs_sp
+        print(Hs_sp[0], Hs_sp[0].size)
+
+
 if __name__ == "__main__":
 
     import doctest
@@ -178,5 +192,5 @@ if __name__ == "__main__":
     print(gen_TM_from_tf(dst_shuffle, 64))
     print(np.nonzero(gen_TM_from_tf(dst_shuffle, 64)))
 
-    compGraph = CompGraph(64, 3, 1)
+    compGraph = CompGraph(64, 8, 1)
     compGraph.comp_graph()
