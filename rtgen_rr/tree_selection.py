@@ -296,6 +296,7 @@ class SplittedTMs:
         self.trace = trace
         self.num_nodes = num_nodes
         self.num_split = num_split
+        self.split_terms, self.tms = None, None
 
     def splittedTMs_from_trace(self):
         trace, num_nodes, num_split = self.trace, self.num_nodes, self.num_split
@@ -361,41 +362,9 @@ def gen_splittedTMs_from_trace(trace, num_nodes, num_split):
 
     return splittedTMs.split_terms, splittedTMs.tms
 
-    # tms = [np.zeros((num_nodes, num_nodes)) for _ in range(num_split)]
-
-    # trace_header = subprocess.run(["head", "-n1", trace], stdout=subprocess.PIPE, text=True)
-    # num_packets = int(trace_header.stdout.strip().split()[0])
-    # # print(num_packets)
-
-    # trace_tail = subprocess.run(["tail", "-n1", trace], stdout=subprocess.PIPE, text=True)
-    # num_cycles = int(trace_tail.stdout.strip().split()[0])
-    # # print(num_cycles)
-
-    # split_terms = [1] + [int(round(num_cycles / num_split * (i+1))) + 1 for i in range(num_split)]
-    # # print(split_terms)
-
-    # def _get_TMid(terms, cycle):
-    #     for i, t in enumerate(terms):
-    #         if t > cycle:
-    #             return i-1
-
-    # with open(trace, "r") as f:
-    #     reader = csv.reader(f, delimiter=" ")
-    #     is_head = True
-    #     for row in reader:
-    #         if is_head:
-    #             is_head = False
-    #             continue
-    #         cycle, src, dst, size = list(map(int, row))
-    #         tm_id = _get_TMid(split_terms, cycle)
-    #         print(cycle, src, dst, size, tm_id)
-    #         if src != dst:
-    #             tms[tm_id][src, dst] += 1
-
-    # print(tms, [np.sum(tms[i]) for i in range(num_split)])
-    # return split_terms, tms
-
 class TransitionGraph:
+    TG_SRC = (-1, -1)
+    TG_DST = (-2, -2)
     def __init__(self, trace, num_nodes, degree, seed, num_split):
         self.trace = trace
         self.num_nodes = num_nodes
@@ -408,10 +377,9 @@ class TransitionGraph:
         self.split_terms, self.tms_from_trace =  gen_splittedTMs_from_trace(self.trace, self.num_nodes, self.num_split)
 
     def gen_tg(self):
-        TG_src, TG_dst = (-1, -1), (-2, -2)
         TG = nx.DiGraph()
-        TG.add_node(TG_src, weight=0.0)
-        TG.add_node(TG_dst, weight=0.0)
+        TG.add_node(self.TG_SRC, weight=0.0)
+        TG.add_node(self.TG_DST, weight=0.0)
 
         weights = [get_weighted_sps(self.cg, tm) for tm in self.tms_from_trace]
 
@@ -419,11 +387,11 @@ class TransitionGraph:
             for n in range(self.num_nodes):
                 TG.add_node((term_id, n), weight=weights[term_id][n])
 
-        # TG_src -> T_n in term 0
+        # TG_SRC -> T_n in term 0
         for n in range(self.num_nodes):
             tmp_dst = (0, n)
-            tmp_weight = TG.nodes[TG_src]["weight"] + TG.nodes[tmp_dst]["weight"]
-            TG.add_edge(TG_src, tmp_dst, weight=tmp_weight)
+            tmp_weight = TG.nodes[self.TG_SRC]["weight"] + TG.nodes[tmp_dst]["weight"]
+            TG.add_edge(self.TG_SRC, tmp_dst, weight=tmp_weight)
 
         # term term_id -> term term_id+1
         for term_id in range(self.num_split - 1):
@@ -439,17 +407,16 @@ class TransitionGraph:
                 tmp_weight = TG.nodes[tmp_src]["weight"] + TG.nodes[tmp_dst]["weight"]
                 TG.add_edge(tmp_src, tmp_dst, weight=tmp_weight)
         
-        # T_n in term (self.num_split-1) -> TG_dst
+        # T_n in term (self.num_split-1) -> TG_DST
         for n in range(self.num_nodes):
             tmp_src = (self.num_split-1, n)
-            tmp_weight = TG.nodes[tmp_src]["weight"] + TG.nodes[TG_dst]["weight"]
-            TG.add_edge(tmp_src, TG_dst, weight=tmp_weight)
+            tmp_weight = TG.nodes[tmp_src]["weight"] + TG.nodes[self.TG_DST]["weight"]
+            TG.add_edge(tmp_src, self.TG_DST, weight=tmp_weight)
 
         self.TG = TG
 
     def shortest_transition(self):
-        TG_src, TG_dst = (-1, -1), (-2, -2)
-        return nx.shortest_path(self.TG, TG_src, TG_dst, weight="weight")
+        return nx.shortest_path(self.TG, self.TG_SRC, self.TG_DST, weight="weight")
 
 if __name__ == "__main__":
 
