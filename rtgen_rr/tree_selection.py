@@ -328,7 +328,7 @@ class SplittedTMs:
                     continue
                 cycle, src, dst, size = list(map(int, row))
                 tm_id = _get_TMid(split_terms, cycle)
-                print(cycle, src, dst, size, tm_id)
+                # print(cycle, src, dst, size, tm_id)
                 if src != dst:
                     tms[tm_id][src, dst] += 1
 
@@ -443,3 +443,14 @@ if __name__ == "__main__":
     print(transition_graph.TG.nodes(data=True))
     print(transition_graph.TG.edges(data=True))
     print(transition_graph.shortest_transition())
+
+    # trace_csv/crossbar_64_bt.W.64_trace_1.00e+09_64_620085_62590300.tr
+
+    transition_graph2 = TransitionGraph("crossbar_64_cg.S.64_trace_1.00e+09_64_267003_32932100.tr", 64, 16, 1, 10000)
+    transition_graph2.gen_tg()
+    # print(transition_graph2.TG.nodes(data=True))
+    # print(transition_graph2.TG.edges(data=True))
+    st = transition_graph2.shortest_transition()
+    print(st)
+    print(set([root for term, root in st]))
+
