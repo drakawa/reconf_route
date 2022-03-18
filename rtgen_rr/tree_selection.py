@@ -200,6 +200,13 @@ def get_tree_tmopt(comp_graph: CompGraph, tm: np.ndarray, term: int):
         weight_sp = np.sum(H_sp * tm) * term
         print(i, ":", weight_sp)
 
+def get_weighted_sps(comp_graph: CompGraph, tm: np.ndarray):
+    weight_sps = list()
+    for i, H_sp in enumerate(comp_graph.Hs_sp):
+        weight_sp = np.sum(H_sp * tm)
+        weight_sps.append(weight_sp)
+    return weight_sps
+
 def get_comp_graph(n, d, s):
     cg_bin = "comp_graph_{}_{}_{}.bin".format(n, d, s)
     if os.path.exists(cg_bin):
@@ -293,7 +300,7 @@ def gen_splittedTMs_from_trace(trace, num_nodes, num_split):
         num_split (int): # of TMs to be generated (splitted by the same time interval)
 
     Returns:
-        (list of ndarray): num_nodes x num_nodes traffic matrices
+        (list), (list of ndarray): list split_terms, num_nodes x num_nodes traffic matrices
     """
     tms = [np.zeros((num_nodes, num_nodes)) for _ in range(num_split)]
 
@@ -327,8 +334,59 @@ def gen_splittedTMs_from_trace(trace, num_nodes, num_split):
                 tms[tm_id][src, dst] += 1
 
     print(tms, [np.sum(tms[i]) for i in range(num_split)])
-    return tms
+    return split_terms, tms
 
+class TransitionGraph:
+    def __init__(self, trace, num_nodes, degree, seed, num_split):
+        self.trace = trace
+        self.num_nodes = num_nodes
+        self.degree = degree
+        self.seed = seed
+        self.num_split = num_split
+
+        self.cg = get_comp_graph(num_nodes, degree, seed)
+
+        self.split_terms, self.tms_from_trace =  gen_splittedTMs_from_trace(self.trace, self.num_nodes, self.num_split)
+
+    def gen_tg(self):
+        TG_src, TG_dst = (-1, -1), (-2, -2)
+        TG = nx.DiGraph()
+        TG.add_node(TG_src, weight=0.0)
+        TG.add_node(TG_dst, weight=0.0)
+
+        weights = [get_weighted_sps(self.cg, tm) for tm in self.tms_from_trace]
+
+        for term_id in range(self.num_split):
+            for n in range(self.num_nodes):
+                TG.add_node((term_id, n), weight=weights[term_id][n])
+
+        # TG_src -> T_n in term 0
+        for n in range(self.num_nodes):
+            tmp_dst = (0, n)
+            tmp_weight = TG.nodes[TG_src]["weight"] + TG.nodes[tmp_dst]["weight"]
+            TG.add_edge(TG_src, tmp_dst, weight=tmp_weight)
+
+        # term term_id -> term term_id+1
+        for term_id in range(self.num_split - 1):
+            # tree unchanged between terms
+            for n in range(self.num_nodes):
+                tmp_src, tmp_dst = (term_id, n), (term_id+1, n)
+                tmp_weight = TG.nodes[tmp_src]["weight"] + TG.nodes[tmp_dst]["weight"]
+                TG.add_edge(tmp_src, tmp_dst, weight=tmp_weight)
+
+            # tree changed between terms
+            for i, j in self.cg.coH.edges:
+                tmp_src, tmp_dst = (term_id, i), (term_id+1, j)
+                tmp_weight = TG.nodes[tmp_src]["weight"] + TG.nodes[tmp_dst]["weight"]
+                TG.add_edge(tmp_src, tmp_dst, weight=tmp_weight)
+        
+        # T_n in term (self.num_split-1) -> TG_dst
+        for n in range(self.num_nodes):
+            tmp_src = (self.num_split-1, n)
+            tmp_weight = TG.nodes[tmp_src]["weight"] + TG.nodes[TG_dst]["weight"]
+            TG.add_edge(tmp_src, TG_dst, weight=tmp_weight)
+
+        self.TG = TG
 
 if __name__ == "__main__":
 
@@ -344,6 +402,13 @@ if __name__ == "__main__":
     get_tree_tmopt(compGraph, gen_TM_uniform(n), 1000)
     get_tree_tmopt(compGraph, gen_TM_from_tf(dst_shuffle, n), 1000)
 
-    gen_trace(0.1, ["uniform", "transpose"], [10,20], 64, seed=1)
-    tms_from_trace = gen_splittedTMs_from_trace("0.1000_uniform-10_transpose-20_1_64.tr", 64, 2)
+    # gen_trace(0.1, ["uniform", "transpose"], [1000,2000], 256, seed=1)
+    gen_trace(0.1, ["uniform", "transpose"], [1000,2000], 256)
+    split_terms, tms_from_trace = gen_splittedTMs_from_trace("0.1000_uniform-1000_transpose-2000_1_256.tr", 256, 2)
+    print(split_terms)
     print(tms_from_trace)
+
+    transition_graph = TransitionGraph("0.1000_uniform-10_transpose-20_1_64.tr", 64, 3, 1, 2)
+    transition_graph.gen_tg()
+    print(transition_graph.TG.nodes)
+    print(transition_graph.TG.edges(data=True))
