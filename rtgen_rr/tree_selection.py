@@ -140,7 +140,7 @@ def Hs_iter(n, Hs, G):
 
 def calc_Hs_sp(inputs):
     H, n = inputs
-    return shortest_path(H)[0:n,n:2*n] - 1
+    return shortest_path(H)[0:n,n:2*n] - SD_OFFSET
 
 class CompGraph:
     """compatibility graph
@@ -152,7 +152,7 @@ class CompGraph:
         G (nx.Graph): random regular graph
         Hs (list of nx.DiGraph): channel dependency graphs
         coH (nx.Graph): compatibility graph among CDGs
-        Hs_sp (list of spmat): shortest path length for CDGs
+        Hs_sp (list of ndarrays): shortest path length for CDGs
     """
 
     def __init__(self, n, d, s):
@@ -284,6 +284,52 @@ def gen_trace(ij_rate, traffics, end_cycles, num_nodes, seed=None):
     os.remove(outf_tr_tmp)
     os.remove(outf_tr_head_tmp)
 
+def gen_splittedTMs_from_trace(trace, num_nodes, num_split):
+    """generate Traffic Matrix from trace file
+
+    Args:
+        trace (string): trace filepath
+        num_nodes (int): # of nodes (must be 2^i)
+        num_split (int): # of TMs to be generated (splitted by the same time interval)
+
+    Returns:
+        (list of ndarray): num_nodes x num_nodes traffic matrices
+    """
+    tms = [np.zeros((num_nodes, num_nodes)) for _ in range(num_split)]
+
+    trace_header = subprocess.run(["head", "-n1", trace], stdout=subprocess.PIPE, text=True)
+    num_packets = int(trace_header.stdout.strip().split()[0])
+    # print(num_packets)
+
+    trace_tail = subprocess.run(["tail", "-n1", trace], stdout=subprocess.PIPE, text=True)
+    num_cycles = int(trace_tail.stdout.strip().split()[0])
+    # print(num_cycles)
+
+    split_terms = [1] + [int(round(num_cycles / num_split * (i+1))) + 1 for i in range(num_split)]
+    # print(split_terms)
+
+    def _get_TMid(terms, cycle):
+        for i, t in enumerate(terms):
+            if t > cycle:
+                return i-1
+
+    with open(trace, "r") as f:
+        reader = csv.reader(f, delimiter=" ")
+        is_head = True
+        for row in reader:
+            if is_head:
+                is_head = False
+                continue
+            cycle, src, dst, size = list(map(int, row))
+            tm_id = _get_TMid(split_terms, cycle)
+            print(cycle, src, dst, size, tm_id)
+            if src != dst:
+                tms[tm_id][src, dst] += 1
+
+    print(tms, [np.sum(tms[i]) for i in range(num_split)])
+    return tms
+
+
 if __name__ == "__main__":
 
     import doctest
@@ -299,3 +345,5 @@ if __name__ == "__main__":
     get_tree_tmopt(compGraph, gen_TM_from_tf(dst_shuffle, n), 1000)
 
     gen_trace(0.1, ["uniform", "transpose"], [10,20], 64, seed=1)
+    tms_from_trace = gen_splittedTMs_from_trace("0.1000_uniform-10_transpose-20_1_64.tr", 64, 2)
+    print(tms_from_trace)
