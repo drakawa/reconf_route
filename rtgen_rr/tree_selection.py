@@ -291,6 +291,50 @@ def gen_trace(ij_rate, traffics, end_cycles, num_nodes, seed=None):
     os.remove(outf_tr_tmp)
     os.remove(outf_tr_head_tmp)
 
+class SplittedTMs:
+    def __init__(self, trace, num_nodes, num_split) -> None:
+        self.trace = trace
+        self.num_nodes = num_nodes
+        self.num_split = num_split
+
+    def splittedTMs_from_trace(self):
+        trace, num_nodes, num_split = self.trace, self.num_nodes, self.num_split
+
+        tms = [np.zeros((num_nodes, num_nodes)) for _ in range(num_split)]
+
+        trace_header = subprocess.run(["head", "-n1", trace], stdout=subprocess.PIPE, text=True)
+        num_packets = int(trace_header.stdout.strip().split()[0])
+        # print(num_packets)
+
+        trace_tail = subprocess.run(["tail", "-n1", trace], stdout=subprocess.PIPE, text=True)
+        num_cycles = int(trace_tail.stdout.strip().split()[0])
+        # print(num_cycles)
+
+        split_terms = [1] + [int(round(num_cycles / num_split * (i+1))) + 1 for i in range(num_split)]
+        # print(split_terms)
+
+        def _get_TMid(terms, cycle):
+            for i, t in enumerate(terms):
+                if t > cycle:
+                    return i-1
+
+        with open(trace, "r") as f:
+            reader = csv.reader(f, delimiter=" ")
+            is_head = True
+            for row in reader:
+                if is_head:
+                    is_head = False
+                    continue
+                cycle, src, dst, size = list(map(int, row))
+                tm_id = _get_TMid(split_terms, cycle)
+                print(cycle, src, dst, size, tm_id)
+                if src != dst:
+                    tms[tm_id][src, dst] += 1
+
+        print(tms, [np.sum(tms[i]) for i in range(num_split)])
+
+        self.split_terms, self.tms = split_terms, tms
+
 def gen_splittedTMs_from_trace(trace, num_nodes, num_split):
     """generate Traffic Matrix from trace file
 
@@ -302,39 +346,54 @@ def gen_splittedTMs_from_trace(trace, num_nodes, num_split):
     Returns:
         (list), (list of ndarray): list split_terms, num_nodes x num_nodes traffic matrices
     """
-    tms = [np.zeros((num_nodes, num_nodes)) for _ in range(num_split)]
 
-    trace_header = subprocess.run(["head", "-n1", trace], stdout=subprocess.PIPE, text=True)
-    num_packets = int(trace_header.stdout.strip().split()[0])
-    # print(num_packets)
+    splitted_tms_bin = "splittedTMs_{}_{}_{}.bin".format(trace, num_nodes, num_split)
 
-    trace_tail = subprocess.run(["tail", "-n1", trace], stdout=subprocess.PIPE, text=True)
-    num_cycles = int(trace_tail.stdout.strip().split()[0])
-    # print(num_cycles)
+    if os.path.exists(splitted_tms_bin):
+        with open(splitted_tms_bin, "rb") as f:
+            splittedTMs = pickle.load(f)
+    else:
+        splittedTMs = SplittedTMs(trace, num_nodes, num_split)
+        splittedTMs.splittedTMs_from_trace()
 
-    split_terms = [1] + [int(round(num_cycles / num_split * (i+1))) + 1 for i in range(num_split)]
-    # print(split_terms)
+        with open(splitted_tms_bin, "wb") as f:
+            pickle.dump(splittedTMs, f)
 
-    def _get_TMid(terms, cycle):
-        for i, t in enumerate(terms):
-            if t > cycle:
-                return i-1
+    return splittedTMs.split_terms, splittedTMs.tms
 
-    with open(trace, "r") as f:
-        reader = csv.reader(f, delimiter=" ")
-        is_head = True
-        for row in reader:
-            if is_head:
-                is_head = False
-                continue
-            cycle, src, dst, size = list(map(int, row))
-            tm_id = _get_TMid(split_terms, cycle)
-            print(cycle, src, dst, size, tm_id)
-            if src != dst:
-                tms[tm_id][src, dst] += 1
+    # tms = [np.zeros((num_nodes, num_nodes)) for _ in range(num_split)]
 
-    print(tms, [np.sum(tms[i]) for i in range(num_split)])
-    return split_terms, tms
+    # trace_header = subprocess.run(["head", "-n1", trace], stdout=subprocess.PIPE, text=True)
+    # num_packets = int(trace_header.stdout.strip().split()[0])
+    # # print(num_packets)
+
+    # trace_tail = subprocess.run(["tail", "-n1", trace], stdout=subprocess.PIPE, text=True)
+    # num_cycles = int(trace_tail.stdout.strip().split()[0])
+    # # print(num_cycles)
+
+    # split_terms = [1] + [int(round(num_cycles / num_split * (i+1))) + 1 for i in range(num_split)]
+    # # print(split_terms)
+
+    # def _get_TMid(terms, cycle):
+    #     for i, t in enumerate(terms):
+    #         if t > cycle:
+    #             return i-1
+
+    # with open(trace, "r") as f:
+    #     reader = csv.reader(f, delimiter=" ")
+    #     is_head = True
+    #     for row in reader:
+    #         if is_head:
+    #             is_head = False
+    #             continue
+    #         cycle, src, dst, size = list(map(int, row))
+    #         tm_id = _get_TMid(split_terms, cycle)
+    #         print(cycle, src, dst, size, tm_id)
+    #         if src != dst:
+    #             tms[tm_id][src, dst] += 1
+
+    # print(tms, [np.sum(tms[i]) for i in range(num_split)])
+    # return split_terms, tms
 
 class TransitionGraph:
     def __init__(self, trace, num_nodes, degree, seed, num_split):
@@ -388,6 +447,10 @@ class TransitionGraph:
 
         self.TG = TG
 
+    def shortest_transition(self):
+        TG_src, TG_dst = (-1, -1), (-2, -2)
+        return nx.shortest_path(self.TG, TG_src, TG_dst, weight="weight")
+
 if __name__ == "__main__":
 
     import doctest
@@ -410,5 +473,6 @@ if __name__ == "__main__":
 
     transition_graph = TransitionGraph("0.1000_uniform-10_transpose-20_1_64.tr", 64, 3, 1, 2)
     transition_graph.gen_tg()
-    print(transition_graph.TG.nodes)
+    print(transition_graph.TG.nodes(data=True))
     print(transition_graph.TG.edges(data=True))
+    print(transition_graph.shortest_transition())
