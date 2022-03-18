@@ -8,9 +8,17 @@ from validate_ecdg2_woacy_copy import gen_ud
 from scipy.sparse.csgraph import shortest_path
 from multiprocessing import Pool
 import pickle
+import random
+import subprocess
 
 NUM_POOLS = 16
 SD_OFFSET = 1
+
+def dst_uniform(src: int, num_nodes: int) -> int:
+    dst = src
+    while src == dst:
+        dst = random.choice(range(num_nodes))
+    return dst
 
 def dst_transpose(src: int, num_nodes: int) -> int:
     """destination for transpose traffic.
@@ -188,9 +196,9 @@ class CompGraph:
         print(Hs_sp[0], Hs_sp[0].size)
 
 def get_tree_tmopt(comp_graph: CompGraph, tm: np.ndarray, term: int):
-    for H_sp in comp_graph.Hs_sp:
+    for i, H_sp in enumerate(comp_graph.Hs_sp):
         weight_sp = np.sum(H_sp * tm) * term
-        print(weight_sp)
+        print(i, ":", weight_sp)
 
 def get_comp_graph(n, d, s):
     cg_bin = "comp_graph_{}_{}_{}.bin".format(n, d, s)
@@ -206,12 +214,82 @@ def get_comp_graph(n, d, s):
 
     return compGraph
 
+def gen_trace(ij_rate, traffics, end_cycles, num_nodes, seed=None):
+    """generate tracefile
+
+    Args:
+        ij_rate (float): injection rate between 0.0 and 1.0
+        traffics (list of string): traffics either in "uniform", "transpose", "reverse", "shuffle"
+        end_cycles (list of int): end cycle for every traffic
+        num_nodes (int): # of nodes
+        seed (int, optional): random seed
+
+    Returns:
+        None ("IJRATE_TF1-EC1_TF2-EC2_...[_SEED]_NUMNODES.tr" generated)
+    Usage:
+        gen_trace(0.1, ["uniform", "transpose"], [10,20], 64, seed=1)
+    
+    """
+    if len(traffics) != 0 and len(traffics) != len(end_cycles):
+        print("invalid length of traffic or end_cycles")
+        exit(1)
+    for traffic in traffics:
+        if traffic not in ["uniform", "transpose", "reverse", "shuffle"]:
+            print("invalid traffic name: ", traffic)
+            exit(1)
+    if ij_rate < 0 or ij_rate >= 1:
+        print("invalid ij_rate:", ij_rate)
+        exit(1)
+    if sorted(end_cycles) != end_cycles:
+        print("invalid end_cycles:", end_cycles)
+        exit(1)
+
+    if seed != None:
+        random.seed(seed)
+
+    outf_tr = "{:.4f}".format(ij_rate)
+    for traffic, end_cycle in zip(traffics, end_cycles):
+        outf_tr += "_{}-{}".format(traffic, end_cycle)
+    if seed != None:
+        outf_tr += "_{}".format(seed)
+    outf_tr += "_{}.tr".format(num_nodes)
+    outf_tr_tmp = outf_tr + ".tmp"
+    outf_tr_head_tmp = outf_tr + ".head.tmp"
+    print(outf_tr, outf_tr_tmp)
+
+    start_cycle = 1
+    num_packets = 0
+    with open(outf_tr_tmp, "w") as f:
+        writer = csv.writer(f, delimiter=" ")
+        for traffic, end_cycle in zip(traffics, end_cycles):
+            tf = eval("dst_" + traffic)
+
+            for time in range(start_cycle, end_cycle+1):
+                for src in range(num_nodes):
+                    if random.random() < ij_rate:
+                        dst = tf(src, num_nodes)
+                        if src != dst:
+                            writer.writerow([time, src, dst, 1])
+                            num_packets += 1
+
+            start_cycle = time + 1
+
+    with open(outf_tr_head_tmp, "w") as f:
+        writer = csv.writer(f, delimiter=" ")
+        writer.writerow([num_packets])
+
+    with open(outf_tr, "w") as f:
+        subprocess.run(["cat", outf_tr_head_tmp, outf_tr_tmp], stdout=f)
+
+    os.remove(outf_tr_tmp)
+    os.remove(outf_tr_head_tmp)
+
 if __name__ == "__main__":
 
     import doctest
     doctest.testmod()
 
-    n, d, s = 64, 8, 1
+    n, d, s = 64, 3, 1
     print(gen_TM_from_tf(dst_shuffle, n))
     print(np.nonzero(gen_TM_from_tf(dst_shuffle, n)))
     print(gen_TM_uniform(n))
@@ -219,3 +297,5 @@ if __name__ == "__main__":
     compGraph = get_comp_graph(n, d, s)
     get_tree_tmopt(compGraph, gen_TM_uniform(n), 1000)
     get_tree_tmopt(compGraph, gen_TM_from_tf(dst_shuffle, n), 1000)
+
+    gen_trace(0.1, ["uniform", "transpose"], [10,20], 64, seed=1)
