@@ -155,9 +155,13 @@ class CompGraph:
         Hs_sp (list of ndarrays): shortest path length for CDGs
     """
 
-    def __init__(self, n, d, s):
+    def __init__(self, n, d, s, edgefile=None):
         self.n, self.d, self.s = n, d, s
-        self.G = nx.random_regular_graph(d, n, s)
+        if edgefile == None:
+            self.G = nx.random_regular_graph(d, n, s)
+        else:
+            self.G = nx.read_edgelist(edgefile, nodetype=int)
+            print(self.G.nodes, self.G.edges)
         self.Hs = None
         self.coH = None
         self.Hs_sp = None
@@ -207,13 +211,16 @@ def get_weighted_sps(comp_graph: CompGraph, tm: np.ndarray):
         weight_sps.append(weight_sp)
     return weight_sps
 
-def get_comp_graph(n, d, s):
-    cg_bin = "comp_graph_{}_{}_{}.bin".format(n, d, s)
+def get_comp_graph(n, d, s, edgefile=None):
+    if edgefile == None:
+        cg_bin = "comp_graph_{}_{}_{}.bin".format(n, d, s)
+    else:
+        cg_bin = "comp_graph_{}.bin".format(edgefile)
     if os.path.exists(cg_bin):
         with open(cg_bin, "rb") as f:
             compGraph = pickle.load(f)
     else:
-        compGraph = CompGraph(n, d, s)
+        compGraph = CompGraph(n, d, s, edgefile)
         compGraph.comp_graph()
 
         with open(cg_bin, "wb") as f:
@@ -365,14 +372,15 @@ def gen_splittedTMs_from_trace(trace, num_nodes, num_split):
 class TransitionGraph:
     TG_SRC = (-1, -1)
     TG_DST = (-2, -2)
-    def __init__(self, trace, num_nodes, degree, seed, num_split):
+    def __init__(self, trace, num_nodes, degree, seed, num_split, edgefile=None):
         self.trace = trace
         self.num_nodes = num_nodes
         self.degree = degree
         self.seed = seed
         self.num_split = num_split
+        self.edgefile = edgefile
 
-        self.cg = get_comp_graph(num_nodes, degree, seed)
+        self.cg = get_comp_graph(num_nodes, degree, seed, edgefile)
 
         self.split_terms, self.tms_from_trace =  gen_splittedTMs_from_trace(self.trace, self.num_nodes, self.num_split)
 
@@ -423,30 +431,30 @@ if __name__ == "__main__":
     import doctest
     doctest.testmod()
 
-    n, d, s = 64, 3, 1
-    print(gen_TM_from_tf(dst_shuffle, n))
-    print(np.nonzero(gen_TM_from_tf(dst_shuffle, n)))
-    print(gen_TM_uniform(n))
+    # n, d, s = 64, 3, 1
+    # print(gen_TM_from_tf(dst_shuffle, n))
+    # print(np.nonzero(gen_TM_from_tf(dst_shuffle, n)))
+    # print(gen_TM_uniform(n))
 
-    compGraph = get_comp_graph(n, d, s)
-    get_tree_tmopt(compGraph, gen_TM_uniform(n), 1000)
-    get_tree_tmopt(compGraph, gen_TM_from_tf(dst_shuffle, n), 1000)
+    # compGraph = get_comp_graph(n, d, s)
+    # get_tree_tmopt(compGraph, gen_TM_uniform(n), 1000)
+    # get_tree_tmopt(compGraph, gen_TM_from_tf(dst_shuffle, n), 1000)
 
-    # gen_trace(0.1, ["uniform", "transpose"], [1000,2000], 256, seed=1)
-    gen_trace(0.1, ["uniform", "transpose"], [1000,2000], 256)
-    split_terms, tms_from_trace = gen_splittedTMs_from_trace("0.1000_uniform-1000_transpose-2000_1_256.tr", 256, 2)
-    print(split_terms)
-    print(tms_from_trace)
+    # # gen_trace(0.1, ["uniform", "transpose"], [1000,2000], 256, seed=1)
+    # gen_trace(0.1, ["uniform", "transpose"], [1000,2000], 256)
+    # split_terms, tms_from_trace = gen_splittedTMs_from_trace("0.1000_uniform-1000_transpose-2000_1_256.tr", 256, 2)
+    # print(split_terms)
+    # print(tms_from_trace)
 
-    transition_graph = TransitionGraph("0.1000_uniform-10_transpose-20_1_64.tr", 64, 3, 1, 2)
-    transition_graph.gen_tg()
-    print(transition_graph.TG.nodes(data=True))
-    print(transition_graph.TG.edges(data=True))
-    print(transition_graph.shortest_transition())
+    # transition_graph = TransitionGraph("0.1000_uniform-10_transpose-20_1_64.tr", 64, 3, 1, 2)
+    # transition_graph.gen_tg()
+    # print(transition_graph.TG.nodes(data=True))
+    # print(transition_graph.TG.edges(data=True))
+    # print(transition_graph.shortest_transition())
 
-    # trace_csv/crossbar_64_bt.W.64_trace_1.00e+09_64_620085_62590300.tr
+    # # trace_csv/crossbar_64_bt.W.64_trace_1.00e+09_64_620085_62590300.tr
 
-    transition_graph2 = TransitionGraph("crossbar_64_cg.S.64_trace_1.00e+09_64_267003_32932100.tr", 64, 16, 1, 10000)
+    transition_graph2 = TransitionGraph("crossbar_64_cg.S.64_trace_1.00e+09_64_267003_32932100.tr", 64, 4, 1, 10000)
     transition_graph2.gen_tg()
     # print(transition_graph2.TG.nodes(data=True))
     # print(transition_graph2.TG.edges(data=True))
@@ -454,3 +462,10 @@ if __name__ == "__main__":
     print(st)
     print(set([root for term, root in st]))
 
+    transition_graph2 = TransitionGraph("crossbar_64_cg.S.64_trace_1.00e+09_64_267003_32932100.tr", 64, 4, 1, 10000, "n64d4k4l286.20150726-0h9mgg.edges")
+    transition_graph2.gen_tg()
+    # print(transition_graph2.TG.nodes(data=True))
+    # print(transition_graph2.TG.edges(data=True))
+    st = transition_graph2.shortest_transition()
+    print(st)
+    print(set([root for term, root in st]))
