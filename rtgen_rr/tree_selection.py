@@ -10,6 +10,12 @@ from multiprocessing import Pool
 import pickle
 import random
 import subprocess
+import glob
+
+from collections import defaultdict
+def rec_dd():
+    return defaultdict(rec_dd)
+
 
 NUM_POOLS = 16
 SD_OFFSET = 1
@@ -159,9 +165,11 @@ class CompGraph:
         self.n, self.d, self.s = n, d, s
         if edgefile == None:
             self.G = nx.random_regular_graph(d, n, s)
+            self.edgefile = None
         else:
             self.G = nx.read_edgelist(edgefile, nodetype=int)
-            print(self.G.nodes, self.G.edges)
+            # print(self.G.nodes, self.G.edges)
+            self.edgefile = edgefile
         self.Hs = None
         self.coH = None
         self.Hs_sp = None
@@ -171,7 +179,10 @@ class CompGraph:
         G = self.G
         G_dir = G.to_directed()
 
-        Hs = [gen_ud(n, d, s, "hops", "./edgefiles", G, G_dir, bfs_root=i) for i in sorted(G.nodes)]
+        if self.edgefile == None:
+            Hs = [gen_ud(n, d, s, "hops", "./edgefiles", G, G_dir, bfs_root=i) for i in sorted(G.nodes)]
+        else:
+            Hs = [gen_ud(n, d, s, "hops", "./edgefiles", G, G_dir, bfs_root=i, edgefile=self.edgefile) for i in sorted(G.nodes)]
 
         self.Hs = Hs
 
@@ -190,19 +201,19 @@ class CompGraph:
 
         largest_cc = max(nx.connected_components(coH), key=len)
 
-        print(largest_cc)
-        print(self.Hs[0])
+        # print(largest_cc)
+        # print(self.Hs[0])
 
         p = Pool(NUM_POOLS)
         Hs_sp = p.map(calc_Hs_sp, [(H, n) for H in Hs])
 
         self.Hs_sp = Hs_sp
-        print(Hs_sp[0], Hs_sp[0].size)
+        # print(Hs_sp[0], Hs_sp[0].size)
 
 def get_tree_tmopt(comp_graph: CompGraph, tm: np.ndarray, term: int):
     for i, H_sp in enumerate(comp_graph.Hs_sp):
         weight_sp = np.sum(H_sp * tm) * term
-        print(i, ":", weight_sp)
+        # print(i, ":", weight_sp)
 
 def get_weighted_sps(comp_graph: CompGraph, tm: np.ndarray):
     weight_sps = list()
@@ -339,7 +350,7 @@ class SplittedTMs:
                 if src != dst:
                     tms[tm_id][src, dst] += 1
 
-        print(tms, [np.sum(tms[i]) for i in range(num_split)])
+        # print(tms, [np.sum(tms[i]) for i in range(num_split)])
 
         self.split_terms, self.tms = split_terms, tms
 
@@ -410,10 +421,11 @@ class TransitionGraph:
                 TG.add_edge(tmp_src, tmp_dst, weight=tmp_weight)
 
             # tree changed between terms
-            for i, j in self.cg.coH.edges:
-                tmp_src, tmp_dst = (term_id, i), (term_id+1, j)
-                tmp_weight = TG.nodes[tmp_src]["weight"] + TG.nodes[tmp_dst]["weight"]
-                TG.add_edge(tmp_src, tmp_dst, weight=tmp_weight)
+            for i_undir, j_undir in self.cg.coH.edges:
+                for i, j in ((i_undir, j_undir), (j_undir, i_undir)):
+                    tmp_src, tmp_dst = (term_id, i), (term_id+1, j)
+                    tmp_weight = TG.nodes[tmp_src]["weight"] + TG.nodes[tmp_dst]["weight"]
+                    TG.add_edge(tmp_src, tmp_dst, weight=tmp_weight)
         
         # T_n in term (self.num_split-1) -> TG_DST
         for n in range(self.num_nodes):
@@ -426,10 +438,54 @@ class TransitionGraph:
     def shortest_transition(self):
         return nx.shortest_path(self.TG, self.TG_SRC, self.TG_DST, weight="weight")
 
+    def path_weight(self, path):
+        return nx.path_weight(self.TG, path, weight="weight")
+
 if __name__ == "__main__":
 
     import doctest
     doctest.testmod()
+    
+    trfiles = sorted(glob.glob("*.tr"))
+    # num_splits = [1,2,4,8,16,32,64]
+    num_splits = [2**i for i in range(14)]
+
+    input_edges = [
+        ("n64d4k4l286.20150726-0h9mgg.edges",64,4,1),
+        ("n64d8k3l192.20160529-pbosi4.edges",64,8,1),
+        ("n64d16k2l174.20150625-ugkdx5.edges",64,16,1),
+    ]
+
+    print(input_edges)
+    num_node = 64
+    degrees = [4,8]
+    num_seeds = range(10)
+
+    split_ones = rec_dd()
+
+    for trfile, num_split, degree, num_seed in it.product(trfiles, num_splits, degrees, num_seeds):
+    # for trfile, num_split, (edgefile, num_node, degree, num_seed) in it.product(trfiles, num_splits, input_edges):
+        transition_graph2 = TransitionGraph(trfile, num_node, degree, num_seed, num_split)
+        # transition_graph2 = TransitionGraph(trfile, num_node, degree, num_seed, num_split, edgefile=edgefile)
+        transition_graph2.gen_tg()
+        # print(transition_graph2.TG.nodes(data=True))
+        # print(transition_graph2.TG.edges(data=True))
+        st = transition_graph2.shortest_transition()
+        # print(st)
+        set_st = set([root for term, root in st])
+        
+        if num_split == 1 or len(set_st) > 3:
+            tmp_path_weight = transition_graph2.path_weight(st)
+            if num_split == 1:
+                split_ones[trfile][degree][num_seed] = tmp_path_weight
+            # print(trfile, num_split, edgefile)
+            print(trfile, num_split, degree, num_seed)
+            print(set_st)
+            print(tmp_path_weight)
+            if num_split > 1:
+                print(tmp_path_weight / split_ones[trfile][degree][num_seed])
+    exit(1)
+
 
     # n, d, s = 64, 3, 1
     # print(gen_TM_from_tf(dst_shuffle, n))
@@ -454,18 +510,18 @@ if __name__ == "__main__":
 
     # # trace_csv/crossbar_64_bt.W.64_trace_1.00e+09_64_620085_62590300.tr
 
-    transition_graph2 = TransitionGraph("crossbar_64_cg.S.64_trace_1.00e+09_64_267003_32932100.tr", 64, 4, 1, 10000)
+    transition_graph2 = TransitionGraph("crossbar_64_is.W.64_trace_1.00e09_8_53946_4909650.tr", 64, 4, 1, 8)
     transition_graph2.gen_tg()
     # print(transition_graph2.TG.nodes(data=True))
     # print(transition_graph2.TG.edges(data=True))
     st = transition_graph2.shortest_transition()
-    print(st)
+    # print(st)
     print(set([root for term, root in st]))
 
-    transition_graph2 = TransitionGraph("crossbar_64_cg.S.64_trace_1.00e+09_64_267003_32932100.tr", 64, 4, 1, 10000, "n64d4k4l286.20150726-0h9mgg.edges")
-    transition_graph2.gen_tg()
-    # print(transition_graph2.TG.nodes(data=True))
-    # print(transition_graph2.TG.edges(data=True))
-    st = transition_graph2.shortest_transition()
-    print(st)
-    print(set([root for term, root in st]))
+    # transition_graph2 = TransitionGraph("crossbar_64_cg.S.64_trace_1.00e+09_64_267003_32932100.tr", 64, 4, 1, 10000, "n64d4k4l286.20150726-0h9mgg.edges")
+    # transition_graph2.gen_tg()
+    # # print(transition_graph2.TG.nodes(data=True))
+    # # print(transition_graph2.TG.edges(data=True))
+    # st = transition_graph2.shortest_transition()
+    # print(st)
+    # print(set([root for term, root in st]))

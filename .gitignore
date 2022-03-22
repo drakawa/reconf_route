@@ -17,3 +17,6 @@ rtgen_rr/edgefiles/*.edges
 rtgen_rr/*.bin
 rtgen_rr/*.tr
 rtgen_rr/*.edges
+trace_csv/csv_trash/
+rtgen_rr/trash/
+rtgen_rr/*.out

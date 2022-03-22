@@ -83,10 +83,10 @@ class PurifyCSV:
     def purify_csv(self):
         event_pool = EventPool()
 
+        is_head = True
         for csvfile in self.csvfiles:
             # print(csvfile)
             with open(csvfile) as f:
-                is_head = True
                 reader = csv.reader(f)
 
                 # test_counter = 0
@@ -95,7 +95,13 @@ class PurifyCSV:
                         is_head = False
                         continue
                     # print(row)
-                    src, dst, size, start = int(row[0][1:])-1, int(row[1][1:])-1, int(row[2]), float(row[4])
+                    try:
+                        src, dst, size, start = int(row[0][1:])-1, int(row[1][1:])-1, int(row[2]), float(row[4])
+                    except:
+                        import traceback
+                        traceback.print_exc()
+                        print(row)
+                        exit(1)
                     # print(src, dst, size, start)
                     packet_size = math.ceil(size / self.flit_size)
                     clk = round(start * self.sample_rate)

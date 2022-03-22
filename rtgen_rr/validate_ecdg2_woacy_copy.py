@@ -164,11 +164,19 @@ def get_stats(values):
 def gen_ud(num_nodes, degree, seed, pri_mode, out_dir, G_undir, G, **kwargs):
     num_nodes_in_G = len(G)
 
-    edge_outf = os.path.join(out_dir, "%d_%d_%d.edges" % (num_nodes, degree, seed))
+    if "edgefile" not in kwargs:
+        edge_outf = os.path.join(out_dir, "%d_%d_%d.edges" % (num_nodes, degree, seed))
+    else:
+        edge_outf = os.path.join(out_dir, kwargs["edgefile"])
+
     if not (os.path.exists(edge_outf) and os.path.getsize(edge_outf) > 0):
         nx.write_edgelist(G_undir, edge_outf, data=False)
     
-    tp_outf = os.path.join(out_dir, "%d_%d_%d_%s.tp" % (num_nodes, degree, seed, pri_mode))
+    if "edgefile" not in kwargs:
+        tp_outf = os.path.join(out_dir, "%d_%d_%d_%s.tp" % (num_nodes, degree, seed, pri_mode))
+    else:
+        tp_outf = os.path.join(out_dir, "%s_%s.tp" % (kwargs["edgefile"], pri_mode))
+
     if not (os.path.exists(tp_outf) and os.path.getsize(tp_outf) > 0):
         with open(tp_outf, 'w') as f: 
             writer = csv.writer(f, delimiter=" ")
@@ -179,7 +187,11 @@ def gen_ud(num_nodes, degree, seed, pri_mode, out_dir, G_undir, G, **kwargs):
                 # node 9 router 9
                 writer.writerow(["node", node, "router", node])
 
-    ud_tp_outf = os.path.join(out_dir, "%d_%d_%d_%s_ud.tp" % (num_nodes, degree, seed, pri_mode))
+    if "edgefile" not in kwargs:
+        ud_tp_outf = os.path.join(out_dir, "%d_%d_%d_%s_ud.tp" % (num_nodes, degree, seed, pri_mode))
+    else:
+        ud_tp_outf = os.path.join(out_dir, "%s_%s_ud.tp" % (kwargs["edgefile"], pri_mode))
+
     if not (os.path.exists(ud_tp_outf) and os.path.getsize(ud_tp_outf) > 0):
         with open(ud_tp_outf, 'w') as f:
      
@@ -216,9 +228,15 @@ def gen_ud(num_nodes, degree, seed, pri_mode, out_dir, G_undir, G, **kwargs):
             udrt_data.append((pn, 0, s, d, n, 0, 0))
 
     if "bfs_root" in kwargs:
-        ud_rt_outf = os.path.join(out_dir, "%d_%d_%d_%d_%s_ud.rt" % (num_nodes, degree, seed, bfs_root, pri_mode))
+        if "edgefile" not in kwargs:
+            ud_rt_outf = os.path.join(out_dir, "%d_%d_%d_%d_%s_ud.rt" % (num_nodes, degree, seed, bfs_root, pri_mode))
+        else:
+            ud_rt_outf = os.path.join(out_dir, "%s_%d_%s_ud.rt" % (kwargs["edgefile"], bfs_root, pri_mode))
     else:
-        ud_rt_outf = os.path.join(out_dir, "%d_%d_%d_%s_ud.rt" % (num_nodes, degree, seed, pri_mode))
+        if "edgefile" not in kwargs:
+            ud_rt_outf = os.path.join(out_dir, "%d_%d_%d_%s_ud.rt" % (num_nodes, degree, seed, pri_mode))
+        else:
+            ud_rt_outf = os.path.join(out_dir, "%s_%s_ud.rt" % (kwargs["edgefile"], pri_mode))
 
     if not (os.path.exists(ud_rt_outf) and os.path.getsize(ud_rt_outf) > 0):
         with open(ud_rt_outf, 'w') as f:
