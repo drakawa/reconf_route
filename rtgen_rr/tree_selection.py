@@ -436,7 +436,40 @@ class TransitionGraph:
         self.TG = TG
 
     def shortest_transition(self):
-        return nx.shortest_path(self.TG, self.TG_SRC, self.TG_DST, weight="weight")
+        self.st = nx.shortest_path(self.TG, self.TG_SRC, self.TG_DST, weight="weight")
+        return self.st
+
+    def gen_txt(self):
+        trace_tail = subprocess.run(["tail", "-n1", self.trace], stdout=subprocess.PIPE, text=True)
+        num_cycles = int(trace_tail.stdout.strip().split()[0])
+        print(num_cycles)
+
+        split_terms = [int(round(num_cycles / self.num_split * (i+1))) + 1 for i in range(self.num_split)]
+        print(split_terms, len(split_terms))
+
+        st_roots = [j for i,j in self.st[1:-1]]
+        print(st_roots, len(st_roots))
+
+        term_roots = list()
+        tmp_split_term, tmp_st_root = 0, -1
+        prev_split_term, prev_st_root = 0, -1
+        for split_term, st_root in zip(split_terms, st_roots):
+            if tmp_st_root == -1:
+                tmp_split_term = split_term
+                tmp_st_root = st_root
+            elif st_root == tmp_st_root:
+                tmp_split_term += (split_term - prev_split_term)
+            else:
+                term_roots.append((tmp_split_term, tmp_st_root))
+                tmp_split_term = (split_term - prev_split_term)
+                tmp_st_root = st_root
+            prev_split_term, prev_st_root = split_term, st_root
+
+        term_roots.append((-1, st_root))
+        print(term_roots)
+        print(tmp_split_term, tmp_st_root)
+        ud_rt_outf = "{}_{}_{}_%d_{}_ud.rt".format(self.num_nodes, self.degree, self.seed, "hops")
+        print(ud_rt_outf)
 
     def path_weight(self, path):
         return nx.path_weight(self.TG, path, weight="weight")
