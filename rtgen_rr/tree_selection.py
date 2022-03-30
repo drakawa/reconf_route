@@ -224,9 +224,9 @@ def get_weighted_sps(comp_graph: CompGraph, tm: np.ndarray):
 
 def get_comp_graph(n, d, s, edgefile=None):
     if edgefile == None:
-        cg_bin = "comp_graph_{}_{}_{}.bin".format(n, d, s)
+        cg_bin = os.path.join("binfiles", "comp_graph_{}_{}_{}.bin".format(n, d, s))
     else:
-        cg_bin = "comp_graph_{}.bin".format(edgefile)
+        cg_bin = os.path.join("binfiles", "comp_graph_{}.bin".format(edgefile))
     if os.path.exists(cg_bin):
         with open(cg_bin, "rb") as f:
             compGraph = pickle.load(f)
@@ -366,7 +366,7 @@ def gen_splittedTMs_from_trace(trace, num_nodes, num_split):
         (list), (list of ndarray): list split_terms, num_nodes x num_nodes traffic matrices
     """
 
-    splitted_tms_bin = "splittedTMs_{}_{}_{}.bin".format(trace, num_nodes, num_split)
+    splitted_tms_bin = os.path.join("binfiles", "splittedTMs_{}_{}_{}.bin".format(os.path.basename(trace), num_nodes, num_split))
 
     if os.path.exists(splitted_tms_bin):
         with open(splitted_tms_bin, "rb") as f:
@@ -440,6 +440,8 @@ class TransitionGraph:
         return self.st
 
     def gen_txt(self):
+        trans_margin = 100
+
         trace_tail = subprocess.run(["tail", "-n1", self.trace], stdout=subprocess.PIPE, text=True)
         num_cycles = int(trace_tail.stdout.strip().split()[0])
         print(num_cycles)
@@ -450,6 +452,21 @@ class TransitionGraph:
         st_roots = [j for i,j in self.st[1:-1]]
         print(st_roots, len(st_roots))
 
+        # term_roots = list()
+        # tmp_split_term, tmp_st_root = 0, -1
+        # prev_split_term, prev_st_root = 0, -1
+        # for split_term, st_root in zip(split_terms, st_roots):
+        #     if tmp_st_root == -1:
+        #         tmp_split_term = split_term
+        #         tmp_st_root = st_root
+        #     elif st_root == tmp_st_root:
+        #         tmp_split_term += (split_term - prev_split_term)
+        #     else:
+        #         term_roots.append((tmp_split_term, tmp_st_root))
+        #         tmp_split_term = (split_term - prev_split_term)
+        #         tmp_st_root = st_root
+        #     prev_split_term, prev_st_root = split_term, st_root
+
         term_roots = list()
         tmp_split_term, tmp_st_root = 0, -1
         prev_split_term, prev_st_root = 0, -1
@@ -458,18 +475,45 @@ class TransitionGraph:
                 tmp_split_term = split_term
                 tmp_st_root = st_root
             elif st_root == tmp_st_root:
-                tmp_split_term += (split_term - prev_split_term)
+                tmp_split_term = split_term
             else:
                 term_roots.append((tmp_split_term, tmp_st_root))
-                tmp_split_term = (split_term - prev_split_term)
+                tmp_split_term = split_term
                 tmp_st_root = st_root
             prev_split_term, prev_st_root = split_term, st_root
 
         term_roots.append((-1, st_root))
         print(term_roots)
         print(tmp_split_term, tmp_st_root)
-        ud_rt_outf = "{}_{}_{}_%d_{}_ud.rt".format(self.num_nodes, self.degree, self.seed, "hops")
+        ud_rt_outf = "{}_{}_{}_%s_{}_ud.rt".format(self.num_nodes, self.degree, self.seed, "hops")
         print(ud_rt_outf)
+
+        outf_txt = os.path.join("rt_txtfiles", "%s_%d_%d_%d.txt" % (os.path.basename(self.trace), self.num_split, self.degree, self.seed))
+        with open(outf_txt, "w") as f:
+            writer = csv.writer(f, delimiter=" ")
+            for id in range(len(term_roots)-1):
+                term, root, nxt_root = term_roots[id][0], term_roots[id][1], term_roots[id+1][1]
+                writer.writerow([ud_rt_outf % str(root), term])
+                writer.writerow([ud_rt_outf % ("int_%d-%d" % tuple(sorted([root, nxt_root]))), trans_margin])
+                print("%s %d" % (ud_rt_outf % str(root), term))
+                print("%s %d" % (ud_rt_outf % ("int_%d-%d" % tuple(sorted([root, nxt_root]))), trans_margin))
+                # print(term, root)
+
+            term, root = term_roots[-1]
+            writer.writerow([ud_rt_outf % str(root), -1])
+            # print(term, root)
+
+            # writer.writerow([num_packets])
+
+        for id in range(len(term_roots)-1):
+            term, root, nxt_root = term_roots[id][0], term_roots[id][1], term_roots[id+1][1]
+            print("%s %d" % (ud_rt_outf % str(root), term))
+            print("%s %d" % (ud_rt_outf % ("int_%d-%d" % tuple(sorted([root, nxt_root]))), trans_margin))
+            # print(term, root)
+
+        term, root = term_roots[-1]
+        print("%s %d" % (ud_rt_outf % str(root), -1))
+        # print(term, root)
 
     def path_weight(self, path):
         return nx.path_weight(self.TG, path, weight="weight")
@@ -479,7 +523,7 @@ if __name__ == "__main__":
     import doctest
     doctest.testmod()
     
-    trfiles = sorted(glob.glob("*.tr"))
+    trfiles = sorted(glob.glob("trfiles/*.tr"))
     # num_splits = [1,2,4,8,16,32,64]
     num_splits = [2**i for i in range(14)]
 
