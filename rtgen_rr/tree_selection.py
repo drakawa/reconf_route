@@ -16,6 +16,10 @@ from collections import defaultdict
 def rec_dd():
     return defaultdict(rec_dd)
 
+"""
+    Note: G is undirected through this file
+    (unless spanning_duato3.py and validate_ecdg2_woacy_copy.py)
+"""
 
 NUM_POOLS = 16
 SD_OFFSET = 1
@@ -478,6 +482,7 @@ class TransitionGraph:
                 TG.add_edge(tmp_src, tmp_dst, weight=tmp_weight)
 
             # tree changed between terms
+            # NOTE: self.cg.coH is undirected graph
             for i_undir, j_undir in self.cg.coH.edges:
                 for i, j in ((i_undir, j_undir), (j_undir, i_undir)):
                     tmp_src, tmp_dst = (term_id, i), (term_id+1, j)
