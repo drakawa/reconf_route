@@ -40,6 +40,7 @@ if __name__ == "__main__":
     # for trfile, num_split, (edgefile, num_node, degree, num_seed) in it.product(trfiles, num_splits, input_edges):
         transition_graph2 = TransitionGraph(trfile, num_node, degree, num_seed, num_split)
         # transition_graph2 = TransitionGraph(trfile, num_node, degree, num_seed, num_split, edgefile=edgefile)
+        transition_graph2.gen_Rint()
         transition_graph2.gen_tg()
         # print(transition_graph2.TG.nodes(data=True))
         # print(transition_graph2.TG.edges(data=True))

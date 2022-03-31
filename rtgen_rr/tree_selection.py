@@ -169,11 +169,20 @@ def gen_intersect_table(H1, H2, G):
                         result_table.append((in_edge_H[0], out_edge_H[0], dst, out_edge_H[1], H_spl_tgt[out_edge_H]))
     return result_table
 
-def gen_intersect_ud(n, d, s, pri_mode, G, G_undir, H, i, j):
+def gen_intersect_ud(n, d, s, pri_mode, G, Hs, i, j):
     """
     Note: G is undirected
     """
-    intersect_table = gen_intersect_table(H[i], H[j], G)
+
+    out_dir = "edgefiles"
+    is_rt_outf = os.path.join(out_dir, "%d_%d_%d_int_%d-%d_%s_ud.rt" % (n, d, s, i, j, pri_mode))
+
+    print("out: %s" % is_rt_outf)
+    
+    if os.path.exists(is_rt_outf) and os.path.getsize(is_rt_outf) > 0:
+        return None
+
+    intersect_table = gen_intersect_table(Hs[i], Hs[j], G)
     num_nodes_in_G = len(G)
 
     isrt_data = list()
@@ -183,12 +192,8 @@ def gen_intersect_ud(n, d, s, pri_mode, G, G_undir, H, i, j):
             isrt_data.append((pn, 0, s, d, n, 0, num_nodes_in_G - hops))
         elif pri_mode == "same":
             isrt_data.append((pn, 0, s, d, n, 0, 0))
-
-    out_dir = "edgefiles"
-    is_rt_outf = os.path.join(out_dir, "%d_%d_%d_int_%d-%d_%s_ud.rt" % (n, d, s, i, j, pri_mode))
-
+    
     if not (os.path.exists(is_rt_outf) and os.path.getsize(is_rt_outf) > 0):
-        print("out: %s" % is_rt_outf)
         with open(is_rt_outf, 'w') as f:
      
             writer = csv.writer(f, delimiter=" ")
@@ -440,6 +445,12 @@ class TransitionGraph:
         self.cg = get_comp_graph(num_nodes, degree, seed, edgefile)
 
         self.split_terms, self.tms_from_trace =  gen_splittedTMs_from_trace(self.trace, self.num_nodes, self.num_split)
+
+    def gen_Rint(self):
+        coH = self.cg.coH
+        for i, j in coH.edges():
+            i, j = sorted([i,j])
+            gen_intersect_ud(self.num_nodes, self.degree, self.seed, "hops", self.cg.G, self.cg.Hs, i, j)
 
     def gen_tg(self):
         TG = nx.DiGraph()
