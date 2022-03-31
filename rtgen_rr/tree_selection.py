@@ -20,6 +20,9 @@ def rec_dd():
 NUM_POOLS = 16
 SD_OFFSET = 1
 
+SRC = -2
+DST = -1
+
 def dst_uniform(src: int, num_nodes: int) -> int:
     dst = src
     while src == dst:
@@ -148,6 +151,49 @@ def calc_Hs_sp(inputs):
     H, n = inputs
     return shortest_path(H)[0:n,n:2*n] - SD_OFFSET
 
+def gen_intersect_table(H1, H2, G):
+    """
+    Note: G is undirected
+    """
+    H = nx.intersection(H1, H2)
+    result_table = list()
+    for dst in G.nodes():
+        dst_channel = (dst, DST)
+        H_spl_tgt = nx.shortest_path_length(H, target=dst_channel)
+        for in_edge_H in H.nodes():
+            for out_edge_H in H[in_edge_H]:
+                if out_edge_H in H_spl_tgt:
+                    if out_edge_H[1] == DST:
+                        continue
+                    else:
+                        result_table.append((in_edge_H[0], out_edge_H[0], dst, out_edge_H[1], H_spl_tgt[out_edge_H]))
+    return result_table
+
+def gen_intersect_ud(n, d, s, pri_mode, G, G_undir, H, i, j):
+    """
+    Note: G is undirected
+    """
+    intersect_table = gen_intersect_table(H[i], H[j], G)
+    num_nodes_in_G = len(G)
+
+    isrt_data = list()
+    # pn, s, d, n, hops → pn, pv, s, d, n, v, pri
+    for pn, s, d, n, hops in intersect_table:
+        if pri_mode == "hops":
+            isrt_data.append((pn, 0, s, d, n, 0, num_nodes_in_G - hops))
+        elif pri_mode == "same":
+            isrt_data.append((pn, 0, s, d, n, 0, 0))
+
+    out_dir = "edgefiles"
+    is_rt_outf = os.path.join(out_dir, "%d_%d_%d_int_%d-%d_%s_ud.rt" % (n, d, s, i, j, pri_mode))
+
+    if not (os.path.exists(is_rt_outf) and os.path.getsize(is_rt_outf) > 0):
+        print("out: %s" % is_rt_outf)
+        with open(is_rt_outf, 'w') as f:
+     
+            writer = csv.writer(f, delimiter=" ")
+            writer.writerows(isrt_data)
+    pass
 class CompGraph:
     """compatibility graph
 
