@@ -38,11 +38,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <map>
 #include <list>
 
+#include <iostream>
+#include <filesystem>
+namespace fs = std::filesystem;
+
 class ReconfRoute : public Network {
 
   string file_name;
   /* ozaki */
   string txtfile_name;
+  std::filesystem::path txt_parent_p;
   /*ozaki*/
   //associtation between  nodes and routers
   map<int, int > node_list;

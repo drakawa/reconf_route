@@ -43,6 +43,10 @@
 #include <map>
 using namespace std;
 
+#include <iostream>
+#include <filesystem>
+namespace fs = std::filesystem;
+
 //this is a hack, I can't easily get the routing talbe out of the network
 
 ReconfRoute::ReconfRoute( const Configuration &config )
@@ -59,6 +63,20 @@ void ReconfRoute::_ComputeSize( const Configuration &config ){
     config.GetStr("network_file",file_name);
     /* ozaki */
     config.GetStr("routing_table_file",txtfile_name);
+
+    std::filesystem::path txt_p = txtfile_name;
+    std::cout << "Current path is " << fs::current_path() << '\n';
+    std::cout << "Absolute path for " << txt_p << " is " 
+              << std::filesystem::absolute(txt_p) << '\n';
+
+	std::cout << "directory : " << txt_p.parent_path() << std::endl;
+	std::cout << "filename  : " << txt_p.filename() << std::endl;
+	std::cout << "stem      : " << txt_p.stem() << std::endl;
+	std::cout << "extension : " << txt_p.extension() << std::endl;
+
+	txt_parent_p = txt_p.parent_path();
+
+	cout << "txt_parent_p" << txt_parent_p << endl;
 
     _use_vc = config.GetInt("use_vc");
 
@@ -318,6 +336,23 @@ void ReconfRoute::buildRoutingTable(){
 	while (getline(ifs_txt, str_txt)) {
 		sscanf(str_txt.data(), "%s %d", rfile_name_char, &time_reconf);
 		rfile_name = rfile_name_char;
+
+		cout << rfile_name << endl;
+
+		if (!std::filesystem::exists(rfile_name)) {
+			std::filesystem::path rfile_p = txt_parent_p;
+			rfile_p.append(rfile_name);
+			cout << "rfile_p: " << rfile_p << endl;
+			
+			if (std::filesystem::exists(rfile_p)) {
+				rfile_name = rfile_p;
+
+			} else {
+				cout << "invalid rfile_name" << rfile_name << endl;
+				std::exit(1);
+			}
+
+		}
 
 		map<int, map<int, vector<tuple<int, int, int, int, int>>>> tmp_grtable_ionvp;
 
