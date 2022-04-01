@@ -19,7 +19,7 @@ if __name__ == "__main__":
     import doctest
     doctest.testmod()
     
-    trfiles = ["trfiles/crossbar_64_is.W.64_trace_1.00e09_8_53946_4909650.tr"]
+    trfiles = ["trfiles/crossbar_64_is.W.64_trace_1.00e09_64_53946_4909650.tr"]
 
     num_splits = [1,2,4,8,16,32,64,128,256]
     # num_splits = [2**i for i in range(14)]
