@@ -550,7 +550,7 @@ class TransitionGraph:
         ud_rt_outf = "{}_{}_{}_%s_{}_ud.rt".format(self.num_nodes, self.degree, self.seed, "hops")
         print(ud_rt_outf)
 
-        outf_txt = os.path.join("rt_txtfiles", "%s_%d_%d_%d.txt" % (os.path.basename(self.trace), self.num_split, self.degree, self.seed))
+        outf_txt = os.path.join("edgefiles", "%s_%d_%d_%d.txt" % (os.path.basename(self.trace), self.num_split, self.degree, self.seed))
         with open(outf_txt, "w") as f:
             writer = csv.writer(f, delimiter=" ")
             for id in range(len(term_roots)-1):
@@ -567,15 +567,15 @@ class TransitionGraph:
 
             # writer.writerow([num_packets])
 
-        for id in range(len(term_roots)-1):
-            term, root, nxt_root = term_roots[id][0], term_roots[id][1], term_roots[id+1][1]
-            print("%s %d" % (ud_rt_outf % str(root), term))
-            print("%s %d" % (ud_rt_outf % ("int_%d-%d" % tuple(sorted([root, nxt_root]))), trans_margin))
-            # print(term, root)
+        # for id in range(len(term_roots)-1):
+        #     term, root, nxt_root = term_roots[id][0], term_roots[id][1], term_roots[id+1][1]
+        #     print("%s %d" % (ud_rt_outf % str(root), term))
+        #     print("%s %d" % (ud_rt_outf % ("int_%d-%d" % tuple(sorted([root, nxt_root]))), trans_margin))
+        #     # print(term, root)
 
-        term, root = term_roots[-1]
-        print("%s %d" % (ud_rt_outf % str(root), -1))
-        # print(term, root)
+        # term, root = term_roots[-1]
+        # print("%s %d" % (ud_rt_outf % str(root), -1))
+        # # print(term, root)
 
     def path_weight(self, path):
         return nx.path_weight(self.TG, path, weight="weight")
