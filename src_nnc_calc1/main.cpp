@@ -149,7 +149,7 @@ int wakeup_latency;
 bool Rold_ejected = false;
 int T_reconf = -1;
 
-int reconf_times[100];
+std::map<int, int> reconf_times;
 int num_rtables = 0;
 int current_rtable = 0;
 bool is_reconfroute = false;
@@ -270,12 +270,6 @@ bool AllocatorSim( const Configuration& config )
 
 int main( int argc, char **argv )
 {
-  /* Kawano */
-  for (int i = 0; i < sizeof(reconf_times) / sizeof(int); i++) {
-    reconf_times[i] = -1;
-  }
-  /* Kawano */
-
   BookSimConfig config;
 
   if ( !ParseArgs( &config, argc, argv ) ) {

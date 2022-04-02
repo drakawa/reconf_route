@@ -84,7 +84,8 @@ map<int, map<int, vector<tuple<int, int, int>>>> global_routing_table_nvp;
 map<int, map<int, vector<tuple<int, int, int, int, int>>>> global_routing_table_ionvp; // nvp[curr][dst] = {(in-port,in-vc,out-port,out-vc,pri), ...}
 
 // FOR RECONFROUTE
-vector<map<int, map<int, vector<tuple<int, int, int, int, int>>>>> global_routing_tables_ionvp_vec; // {nvp0[curr][dst] = {(in-port,in-vc,out-port,out-vc,pri), ...}, ...}
+map<string, map<int, map<int, vector<tuple<int, int, int, int, int>>>>> global_routing_tables_ionvp_map; // {nvp0[curr][dst] = {(in-port,in-vc,out-port,out-vc,pri), ...}, ...}
+map<int, string> grti_id_string;
 
 map<int, map<int, int>> next_node_port; // nnp[curr]={next:out-port, next2:out2, ...}
 map<int, map<int, int>> prev_node_port; // pnp[curr]={prev:in-port, prev2:in-port2, ...}

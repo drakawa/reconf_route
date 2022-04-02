@@ -292,7 +292,7 @@ void min_reconfroute( const Router *r, const Flit *f, int in_channel,
 			// 	f_rtable_idx = current_rtable;
 			// }
 
-			vector<tuple<int, int, int, int, int>> tmp_grt_ionvp_vec = global_routing_tables_ionvp_vec[f_rtable_idx][rID][dest];
+			vector<tuple<int, int, int, int, int>> tmp_grt_ionvp_vec = global_routing_tables_ionvp_map[grti_id_string[f_rtable_idx]][rID][dest];
 			for (size_t i = 0; i < tmp_grt_ionvp_vec.size(); i++) {
 				in_port =     get<0>(tmp_grt_ionvp_vec[i]);
 				in_vc =       get<1>(tmp_grt_ionvp_vec[i]);
@@ -343,7 +343,7 @@ void ReconfRoute::buildRoutingTable(){
 			std::filesystem::path rfile_p = txt_parent_p;
 			rfile_p.append(rfile_name);
 			cout << "rfile_p: " << rfile_p << endl;
-			
+
 			if (std::filesystem::exists(rfile_p)) {
 				rfile_name = rfile_p;
 
@@ -381,7 +381,12 @@ void ReconfRoute::buildRoutingTable(){
 			// cout << prev_port << " " << pv << " " << next_port << " " << v << " " << p << endl;
 			tmp_grtable_ionvp[s][d].push_back(tmp_t);
 		}
-		global_routing_tables_ionvp_vec.push_back(tmp_grtable_ionvp);
+		// global_routing_tables_ionvp_vec.push_back(tmp_grtable_ionvp);
+		if (global_routing_tables_ionvp_map.count(rfile_name) == 0) {
+			global_routing_tables_ionvp_map[rfile_name] = tmp_grtable_ionvp;
+		}
+		grti_id_string[num_rtables] = rfile_name;
+		
 		reconf_times[txtfile_countline] = time_reconf;
 		txtfile_countline++;
 		num_rtables++;

@@ -32,6 +32,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _GLOBALS_HPP_
 #include <string>
 
+/* kawano */
+#include <map>
+/* kawano */
+
 /*all declared in main.cpp*/
 
 
@@ -85,7 +89,7 @@ extern bool _use_noc_latency;
 extern bool Rold_ejected;
 extern int T_reconf;
 
-extern int reconf_times[100];
+extern std::map<int, int> reconf_times;
 extern int num_rtables;
 extern int current_rtable;
 extern bool is_reconfroute;

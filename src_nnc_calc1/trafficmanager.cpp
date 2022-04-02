@@ -669,7 +669,7 @@ void TrafficManager::_GeneratePacket( int source, int stype,
       packet_type = Flit::ANY_TYPE;
       size =  trace_events[trace_event_ptr].size;
       packet_destination = trace_events[trace_event_ptr].dst;
-      printf("Trace: Packet is injected (time %d src %d dst %d size %d)\n", time, source, packet_destination, size);
+      printf("Trace: Packet is injected (trace_id %d time %d src %d dst %d size %d)\n", trace_event_ptr, time, source, packet_destination, size);
     } else {
       // use uniform packet size
       packet_type = Flit::ANY_TYPE;
@@ -706,7 +706,7 @@ void TrafficManager::_GeneratePacket( int source, int stype,
     if (is_reconfroute) {
         f->rtable_idx = current_rtable;
     }
-    if (is_reconfroute && (f->time >= t_start) && (f->time < t_end)) {
+    if (is_reconfroute && (f->time >= t_start) && (f->time <= t_end)) {
       _in_flight_Rold[f->id] = true;
     }
     /* Kawano */
@@ -1062,6 +1062,11 @@ void TrafficManager::_Step( )
 
   /* Kawano */
   if (is_reconfroute) {
+
+    if (_in_flight_Rold.size() > 0) {
+      cout << "time: " << _time << " in_flight_Rold.size: " << _in_flight_Rold.size() << endl;
+    }
+
     if (R_state == 0) {
       if (T_interval > 0) {
         T_interval--;
@@ -1082,9 +1087,12 @@ void TrafficManager::_Step( )
       } else if (T_interval == 0) {
         R_state = 0;
         current_rtable++;
-        T_interval = reconf_times[current_rtable];
-        t_start = _time;
-        t_end = _time + T_interval;
+        // T_interval = reconf_times[current_rtable];
+        // t_start = _time;
+        // t_end = _time + T_interval;
+        T_interval = reconf_times[current_rtable] - _time;
+        t_start = _time + 1;
+        t_end = reconf_times[current_rtable];
         cout << "Transit to R_new at time = " << _time << endl;
       }
     }
