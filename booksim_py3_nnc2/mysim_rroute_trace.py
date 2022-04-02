@@ -50,7 +50,8 @@ st_final_delay = 0;
 
 // Simulation
 sim_type = latency;
-warmup_periods = 1;
+// warmup_periods = 1;
+warmup_periods = 0;
 sample_period  = 100000;
 max_samples    = %d;
 sim_count = 1;
@@ -160,6 +161,14 @@ class BsimOpen:
                 break
 
             line = self.proc.stdout.readline()
+
+            if "WARNING: Possible network deadlock." in line:
+                continue
+            elif "Trace: Packet is injected" in line:
+                continue
+            elif "in_flight_Rold.size" in line:
+                continue
+            
             print(line, end="")
 
             yield line
