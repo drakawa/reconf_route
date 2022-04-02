@@ -1078,7 +1078,7 @@ void TrafficManager::_Step( )
     } else if (R_state == 1) {
       if (_in_flight_Rold.size() == 0) {
         R_state = 2;
-        T_interval = reconf_times[current_rtable];
+        T_interval = reconf_times[current_rtable] - 1;
         cout << "All old packets ejected at time = " << _time << endl;
       }
     } else {
