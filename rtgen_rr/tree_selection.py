@@ -486,7 +486,8 @@ class TransitionGraph:
             for i_undir, j_undir in self.cg.coH.edges:
                 for i, j in ((i_undir, j_undir), (j_undir, i_undir)):
                     tmp_src, tmp_dst = (term_id, i), (term_id+1, j)
-                    tmp_weight = TG.nodes[tmp_src]["weight"] + TG.nodes[tmp_dst]["weight"]
+                    # tmp_weight = TG.nodes[tmp_src]["weight"] + TG.nodes[tmp_dst]["weight"]
+                    tmp_weight = TG.nodes[tmp_src]["weight"] * 100 + TG.nodes[tmp_dst]["weight"] * 100
                     TG.add_edge(tmp_src, tmp_dst, weight=tmp_weight)
         
         # T_n in term (self.num_split-1) -> TG_DST
@@ -502,7 +503,8 @@ class TransitionGraph:
         return self.st
 
     def gen_txt(self):
-        trans_margin = 100
+        # trans_margin = 100
+        trans_margin = 1
 
         trace_tail = subprocess.run(["tail", "-n1", self.trace], stdout=subprocess.PIPE, text=True)
         num_cycles = int(trace_tail.stdout.strip().split()[0])
