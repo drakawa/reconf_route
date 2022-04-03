@@ -22,3 +22,4 @@ rtgen_rr/*.edges
 trace_csv/csv_trash/
 rtgen_rr/trash/
 rtgen_rr/*.out
+booksim_py3_nnc2/nohup.out

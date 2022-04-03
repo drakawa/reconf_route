@@ -277,12 +277,12 @@ def get_weighted_sps(comp_graph: CompGraph, tm: np.ndarray):
         weight_sps.append(weight_sp)
     return weight_sps
 
-def get_comp_graph(n, d, s, edgefile=None):
+def get_comp_graph(n, d, s, edgefile=None, load_pickle=True):
     if edgefile == None:
         cg_bin = os.path.join("binfiles", "comp_graph_{}_{}_{}.bin".format(n, d, s))
     else:
         cg_bin = os.path.join("binfiles", "comp_graph_{}.bin".format(edgefile))
-    if os.path.exists(cg_bin):
+    if load_pickle and os.path.exists(cg_bin):
         with open(cg_bin, "rb") as f:
             compGraph = pickle.load(f)
     else:
@@ -403,19 +403,21 @@ class SplittedTMs:
                 tm_id = _get_TMid(split_terms, cycle)
                 # print(cycle, src, dst, size, tm_id)
                 if src != dst:
-                    tms[tm_id][src, dst] += 1
+                    # tms[tm_id][src, dst] += 1
+                    tms[tm_id][src, dst] += size
 
         # print(tms, [np.sum(tms[i]) for i in range(num_split)])
 
         self.split_terms, self.tms = split_terms, tms
 
-def gen_splittedTMs_from_trace(trace, num_nodes, num_split):
+def gen_splittedTMs_from_trace(trace, num_nodes, num_split, load_pickle=True):
     """generate Traffic Matrix from trace file
 
     Args:
         trace (string): trace filepath
         num_nodes (int): # of nodes (must be 2^i)
         num_split (int): # of TMs to be generated (splitted by the same time interval)
+        load_pickle (optional, bool, default=True): load pickle object if exists
 
     Returns:
         (list), (list of ndarray): list split_terms, num_nodes x num_nodes traffic matrices
@@ -423,7 +425,7 @@ def gen_splittedTMs_from_trace(trace, num_nodes, num_split):
 
     splitted_tms_bin = os.path.join("binfiles", "splittedTMs_{}_{}_{}.bin".format(os.path.basename(trace), num_nodes, num_split))
 
-    if os.path.exists(splitted_tms_bin):
+    if load_pickle and os.path.exists(splitted_tms_bin):
         with open(splitted_tms_bin, "rb") as f:
             splittedTMs = pickle.load(f)
     else:
@@ -438,17 +440,18 @@ def gen_splittedTMs_from_trace(trace, num_nodes, num_split):
 class TransitionGraph:
     TG_SRC = (-1, -1)
     TG_DST = (-2, -2)
-    def __init__(self, trace, num_nodes, degree, seed, num_split, edgefile=None):
+    def __init__(self, trace, num_nodes, degree, seed, num_split, edgefile=None, load_pickle=True, trans_margin=1):
         self.trace = trace
         self.num_nodes = num_nodes
         self.degree = degree
         self.seed = seed
         self.num_split = num_split
         self.edgefile = edgefile
+        self.trans_margin = trans_margin
 
-        self.cg = get_comp_graph(num_nodes, degree, seed, edgefile)
+        self.cg = get_comp_graph(num_nodes, degree, seed, edgefile, load_pickle)
 
-        self.split_terms, self.tms_from_trace =  gen_splittedTMs_from_trace(self.trace, self.num_nodes, self.num_split)
+        self.split_terms, self.tms_from_trace =  gen_splittedTMs_from_trace(self.trace, self.num_nodes, self.num_split, load_pickle)
 
     def gen_Rint(self):
         coH = self.cg.coH
@@ -504,7 +507,8 @@ class TransitionGraph:
 
     def gen_txt(self):
         # trans_margin = 100
-        trans_margin = 1
+        # trans_margin = 1
+        trans_margin = self.trans_margin
 
         trace_tail = subprocess.run(["tail", "-n1", self.trace], stdout=subprocess.PIPE, text=True)
         num_cycles = int(trace_tail.stdout.strip().split()[0])
@@ -552,7 +556,7 @@ class TransitionGraph:
         ud_rt_outf = "{}_{}_{}_%s_{}_ud.rt".format(self.num_nodes, self.degree, self.seed, "hops")
         print(ud_rt_outf)
 
-        outf_txt = os.path.join("edgefiles", "%s_%d_%d_%d.txt" % (os.path.basename(self.trace), self.num_split, self.degree, self.seed))
+        outf_txt = os.path.join("edgefiles", "%s_%d_%d_%d_%d.txt" % (os.path.basename(self.trace), self.num_split, self.degree, self.seed, self.trans_margin))
         with open(outf_txt, "w") as f:
             writer = csv.writer(f, delimiter=" ")
             for id in range(len(term_roots)-1):

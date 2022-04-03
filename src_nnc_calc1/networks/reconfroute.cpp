@@ -337,12 +337,12 @@ void ReconfRoute::buildRoutingTable(){
 		sscanf(str_txt.data(), "%s %d", rfile_name_char, &time_reconf);
 		rfile_name = rfile_name_char;
 
-		cout << rfile_name << endl;
+		// cout << rfile_name << endl;
 
 		if (!std::filesystem::exists(rfile_name)) {
 			std::filesystem::path rfile_p = txt_parent_p;
 			rfile_p.append(rfile_name);
-			cout << "rfile_p: " << rfile_p << endl;
+			// cout << "rfile_p: " << rfile_p << endl;
 
 			if (std::filesystem::exists(rfile_p)) {
 				rfile_name = rfile_p;
@@ -361,7 +361,7 @@ void ReconfRoute::buildRoutingTable(){
 		string str;
 		int pn, pv, s, d, n, nvc, v, p;
 
-		cout << "routing table file:" << rfile_name << " with reconf time=" << time_reconf << endl;
+		// cout << "routing table file:" << rfile_name << " with reconf time=" << time_reconf << endl;
 		if(!_use_vc){
 		while(getline(ifs_r, str)){
 			/* kawano */
@@ -392,7 +392,7 @@ void ReconfRoute::buildRoutingTable(){
 		num_rtables++;
 		// cout << "ionvp_vc size: " << global_routing_tables_ionvp_vec[0].size() << endl;
 		}
-		cout << endl;
+		// cout << endl;
 	}
 }
 

@@ -7,6 +7,7 @@ import itertools as it
 import os
 import re
 import argparse
+from functools import reduce
 
 # nw_file, rt_file, traffic, ij_rate(f), num_vcs(d)
 CFG_TEMPLATE = '''// Topoogy
@@ -162,12 +163,25 @@ class BsimOpen:
 
             line = self.proc.stdout.readline()
 
-            if "WARNING: Possible network deadlock." in line:
+            skip_strs = [
+                "WARNING: Possible network deadlock.",
+                "Trace: Packet is injected",
+                "in_flight_Rold.size",
+                "All old packets ejected at time",
+                "Transit to R_new at time",
+                "Transit to R_int at time",
+            ]
+
+            str_in_line = [skip_str in line for skip_str in skip_strs]
+            if reduce(lambda a,b: a or b, str_in_line):
                 continue
-            elif "Trace: Packet is injected" in line:
-                continue
-            elif "in_flight_Rold.size" in line:
-                continue
+            
+            # if "WARNING: Possible network deadlock." in line:
+            #     continue
+            # elif "Trace: Packet is injected" in line:
+            #     continue
+            # elif "in_flight_Rold.size" in line:
+            #     continue
             
             print(line, end="")
 

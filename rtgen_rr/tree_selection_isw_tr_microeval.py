@@ -19,9 +19,19 @@ if __name__ == "__main__":
     import doctest
     doctest.testmod()
     
-    trfiles = ["trfiles/crossbar_64_is.W.64_trace_1.00e09_8192_53946_4909650.tr"]
+    # trfiles = ["trfiles/crossbar_64_is.W.64_trace_1.00e09_4096_53946_4909650.tr"]
+    trfiles = [
+        "trfiles/crossbar_64_bt.W.64_trace_1.00e09_4096_620085_62590300.tr",
+        "trfiles/crossbar_64_cg.W.64_trace_1.00e09_4096_267004_41961500.tr",
+        "trfiles/crossbar_64_ep.W.64_trace_1.00e09_4096_2655_9327740.tr",
+        "trfiles/crossbar_64_ft.W.64_trace_1.00e09_4096_18223_2379540.tr",
+        "trfiles/crossbar_64_is.W.64_trace_1.00e09_4096_53946_4909650.tr",
+        "trfiles/crossbar_64_lu.W.64_trace_1.00e09_4096_2163744_243721000.tr",
+        "trfiles/crossbar_64_mg.W.64_trace_1.00e09_4096_72726_5670700.tr",
+        "trfiles/crossbar_64_sp.W.64_trace_1.00e09_4096_1234359_134421000.tr"
+    ]
 
-    num_splits = [1,2,4,8,16,32,64,128,256,2048,4096,8192]
+    num_splits = [2**i for i in range(14)]
     # num_splits = [2**i for i in range(14)]
     # num_splits = [2**i for i in range(10)]
     # num_splits = [1,8192]
@@ -29,16 +39,22 @@ if __name__ == "__main__":
     num_node = 64
 
     # degrees = [4,8]
-    degrees = [4]
+    degrees = [8]
 
     # num_seeds = range(10)
-    num_seeds = [1]
+    num_seeds = [4]
+
+    degree_seeds = [(4,1),(8,4)]
+
+    trans_margins = [1,5,10]
 
     split_ones = rec_dd()
 
-    for trfile, num_split, degree, num_seed in it.product(trfiles, num_splits, degrees, num_seeds):
+    for trfile, num_split, (degree, num_seed), trans_margin in it.product(trfiles, num_splits, degree_seeds, trans_margins):
+    # for trfile, num_split, degree, num_seed in it.product(trfiles, num_splits, degrees, num_seeds):
     # for trfile, num_split, (edgefile, num_node, degree, num_seed) in it.product(trfiles, num_splits, input_edges):
-        transition_graph2 = TransitionGraph(trfile, num_node, degree, num_seed, num_split)
+        transition_graph2 = TransitionGraph(trfile, num_node, degree, num_seed, num_split, load_pickle=True, trans_margin=trans_margin)
+        # transition_graph2 = TransitionGraph(trfile, num_node, degree, num_seed, num_split, load_pickle=False)
         # transition_graph2 = TransitionGraph(trfile, num_node, degree, num_seed, num_split, edgefile=edgefile)
         transition_graph2.gen_Rint()
         transition_graph2.gen_tg()
@@ -54,7 +70,7 @@ if __name__ == "__main__":
             if num_split == 1:
                 split_ones[trfile][degree][num_seed] = tmp_path_weight
             # print(trfile, num_split, edgefile)
-            print(trfile, num_split, degree, num_seed)
+            print(trfile, num_split, degree, num_seed, trans_margin)
             print(set_st)
             print(tmp_path_weight)
             if num_split > 1:
