@@ -1,0 +1,62 @@
+
+
+ NAS Parallel Benchmarks 3.3 -- CG Benchmark
+
+ Size:      14000
+ Iterations:    15
+ Number of active processes:  1024
+ Number of nonzeroes per row:       11
+ Eigenvalue shift: .200E+02
+
+   iteration           ||r||                 zeta
+        1       0.18813475237490E-12    19.9997581277040
+        2       0.18174376076546E-14    17.1140495745506
+        3       0.18296617294046E-14    17.1296668946143
+        4       0.17932645634006E-14    17.1302113581192
+        5       0.17701080016185E-14    17.1302338856353
+        6       0.17760307629989E-14    17.1302349879482
+        7       0.17562384234327E-14    17.1302350498916
+        8       0.17146790594579E-14    17.1302350537510
+        9       0.16964306401765E-14    17.1302350540101
+       10       0.16618944485250E-14    17.1302350540284
+       11       0.16615536550651E-14    17.1302350540298
+       12       0.16007378912361E-14    17.1302350540299
+       13       0.15812194370169E-14    17.1302350540299
+       14       0.15681385520060E-14    17.1302350540299
+       15       0.15668891381577E-14    17.1302350540299
+ Benchmark completed 
+ VERIFICATION SUCCESSFUL 
+ Zeta is     0.1713023505403E+02
+ Error is    0.5226337199892E-13
+
+
+ CG Benchmark Completed.
+ Class           =                        A
+ Size            =                    14000
+ Iterations      =                       15
+ Time in seconds =                     0.14
+ Total processes =                     1024
+ Compiled procs  =                     1024
+ Mop/s total     =                 10505.48
+ Mop/s/process   =                    10.26
+ Operation type  =           floating point
+ Verification    =               SUCCESSFUL
+ Version         =                    3.3.1
+ Compile date    =              06 Sep 2020
+
+ Compile options:
+    MPIF77       = ${SIMGRID_PATH}/bin/smpiff
+    FLINK        = $(MPIF77)
+    FMPI_LIB     = -lsimgrid -lgfortran #-lsmpi -lgras
+    FMPI_INC     = -I${SIMGRID_PATH}/include/smpi/
+    FFLAGS       = -O
+    FLINKFLAGS   = -O -L${SIMGRID_PATH}/lib
+    RAND         = randi8
+
+
+ Please send feedbacks and/or the results of this run to:
+
+ NPB Development Team 
+ Internet: npb@nas.nasa.gov
+
+
