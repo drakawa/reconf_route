@@ -1,3 +1,5 @@
+# %%
+
 import csv
 import sys
 import networkx as nx
@@ -91,19 +93,19 @@ class GenSpanningCDG:
             exit(1)
         return H
 
-
+# %%
 if __name__ == "__main__":
     # ns = [256]
     # ds = list(range(3,17))
-    # ss = list(range(10))
+    ss = list(range(10))
     ns = [64]
     ds = list(range(3,10))
     # ss = list(range(10))
     # ns = [256]
     # ds = [3]
-    ss = [1]
+    # ss = [1]
 
-    num_pools = 10
+    num_pools = 18
 
     from collections import defaultdict
     nested_dict = lambda: defaultdict(nested_dict)
