@@ -1,3 +1,4 @@
+# %%
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jul 30 11:06:52 2020
@@ -96,7 +97,7 @@ for (degree, num_seed) in degree_seeds:
     lefts = [[i + width * l for i in range(num_labels)] for l in range(num_legends)]
     print(lefts)
 
-    plt.cla()
+    # plt.cla()
 
     plt.rcParams['font.family'] ='Times New Roman'
     plt.rcParams['font.size'] =24
@@ -148,7 +149,9 @@ for (degree, num_seed) in degree_seeds:
     # p = [p1,p2]
 
     ax.grid(which = "major", axis = "y", color = "gray", linestyle = "--", linewidth = 1)
-    ax.legend(ps, [i.get_label() for i in ps], bbox_to_anchor=(1.02, 1), loc='upper left')
+    ax.legend(ps, [i.get_label() for i in ps], bbox_to_anchor=(1.02, 1), loc='upper left', title="# of Slots")
+    # ax.get_legend().get_title().set_color("red")
+
     # plt.legend()
     plt.savefig("eval_added_time_%d_%d.eps" % (degree, num_seed))
     plt.savefig("eval_added_time_%d_%d.png" % (degree, num_seed))
